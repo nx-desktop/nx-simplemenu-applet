@@ -1,0 +1,19 @@
+# (0) Minimum Requirements (tested, but might be lower)
+- Qt               >= 5.4.0 
+- KDE Workspace    >= 5.4.0
+- Plasma Framework >= 5.19
+
+# Prepare your build directory and get into it
+cd /path/to/nomad-simplemenu/
+mkdir build
+cd build
+
+# Standard way: having root permission
+cmake -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix` -DCMAKE_BUILD_TYPE=Release -DLIB_INSTALL_DIR=lib -DKDE_INSTALL_USE_QT_SYS_PATHS=ON ../
+make
+make install
+
+# Alternative way: having non-root permission
+cmake -DCMAKE_INSTALL_PREFIX=`kde4-config --localprefix` -DCMAKE_BUILD_TYPE=Release -DLIB_INSTALL_DIR=lib -DKDE_INSTALL_USE_QT_SYS_PATHS=ON ../
+make
+make install
