@@ -24,8 +24,7 @@ import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 
-// import org.kde.plasma.private.simplemenu 0.1 as SimpleMenu
-import org.kde.plasma.private.kicker 0.1 as Kicker
+import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
 
 Item {
     id: kicker
@@ -33,6 +32,8 @@ Item {
     anchors.fill: parent
 
     signal reset
+
+    property bool isDash: false
 
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
 
@@ -63,52 +64,37 @@ Item {
         id: menuRepresentation
         MenuRepresentation {}
     }
-    Kicker.RootModel {
+
+    NomadMenu.RootModel {
         id: rootModel
-        // appNameFormat: plasmoid.configuration.appNameFormat
+
+        appNameFormat: plasmoid.configuration.appNameFormat
         flat: true
         showSeparators: false
         appletInterface: plasmoid
 
-        showRecentApps: false
-        showRecentDocs: false
-        showAllSubtree: false
+        // showAllSubtree: true
+        showRecentApps: plasmoid.configuration.showRecentApps
+        showRecentDocs: plasmoid.configuration.showRecentDocs
+        showRecentContacts: plasmoid.configuration.showRecentContacts
+
+        onShowRecentAppsChanged: {
+            plasmoid.configuration.showRecentApps = showRecentApps;
+        }
+
+        onShowRecentDocsChanged: {
+            plasmoid.configuration.showRecentDocs = showRecentDocs;
+        }
+
+        onShowRecentContactsChanged: {
+            plasmoid.configuration.showRecentContacts = showRecentContacts;
+        }
 
         Component.onCompleted: {
             favoritesModel.favorites = plasmoid.configuration.favoriteApps;
+            favoritesModel.maxFavorites = 24;
         }
     }
-
-//    SimpleMenu.RootModel {
-//        id: rootModel
-
-//        appNameFormat: plasmoid.configuration.appNameFormat
-//        flat: true
-//        showSeparators: false
-//        appletInterface: plasmoid
-
-//        showAllSubtree: true
-//        showRecentApps: plasmoid.configuration.showRecentApps
-//        showRecentDocs: plasmoid.configuration.showRecentDocs
-//        showRecentContacts: plasmoid.configuration.showRecentContacts
-
-//        onShowRecentAppsChanged: {
-//            plasmoid.configuration.showRecentApps = showRecentApps;
-//        }
-
-//        onShowRecentDocsChanged: {
-//            plasmoid.configuration.showRecentDocs = showRecentDocs;
-//        }
-
-//        onShowRecentContactsChanged: {
-//            plasmoid.configuration.showRecentContacts = showRecentContacts;
-//        }
-
-//        Component.onCompleted: {
-//            favoritesModel.favorites = plasmoid.configuration.favoriteApps;
-//            favoritesModel.maxFavorites = 24;
-//        }
-//    }
 
     Connections {
         target: globalFavorites
@@ -138,55 +124,22 @@ Item {
         }
     }
 
-    Kicker.RunnerModel {
+    NomadMenu.RunnerModel {
         id: runnerModel
 
         favoritesModel: globalFavorites
+        runners: plasmoid.configuration.useExtraRunners ? new Array("services").concat(plasmoid.configuration.extraRunners) : "services"
 
-        runners: {
-            var runners = new Array("services");
-
-
-            if (plasmoid.configuration.useExtraRunners) {
-                runners = runners.concat(plasmoid.configuration.extraRunners);
-            }
-
-            return runners;
-        }
-
-        deleteWhenEmpty: true
+        deleteWhenEmpty: false
     }
 
-    Kicker.DragHelper {
+    NomadMenu.DragHelper {
         id: dragHelper
-
-        dragIconSize: units.iconSizes.medium
     }
 
-    Kicker.ProcessRunner {
+    NomadMenu.ProcessRunner {
         id: processRunner;
     }
-
-    Kicker.WindowSystem {
-        id: windowSystem;
-    }
-
-//    SimpleMenu.RunnerModel {
-//        id: runnerModel
-
-//        favoritesModel: globalFavorites
-//        runners: plasmoid.configuration.useExtraRunners ? new Array("services").concat(plasmoid.configuration.extraRunners) : "services"
-
-//        deleteWhenEmpty: false
-//    }
-
-//    SimpleMenu.DragHelper {
-//        id: dragHelper
-//    }
-
-//    SimpleMenu.ProcessRunner {
-//        id: processRunner;
-//    }
 
     PlasmaCore.FrameSvgItem {
         id : highlightItemSvg

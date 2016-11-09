@@ -23,19 +23,18 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
-// import org.kde.plasma.private.simplemenu 0.1 as SimpleMenu
-import org.kde.plasma.private.kicker 0.1 as Kicker
+import org.kde.plasma.private.nomadmenu 0.1 as SimpleMenu
 
-PlasmaCore.Dialog {
+SimpleMenu.SimpleMenuDialog {
     id: root
 
     objectName: "popupWindow"
     flags: Qt.WindowStaysOnTopHint
     location: PlasmaCore.Types.Floating
-    // plasmoidLocation: plasmoid.location
+    plasmoidLocation: plasmoid.location
     hideOnWindowDeactivate: true
 
-    // offset: units.gridUnit / 2
+    offset: units.gridUnit / 2
 
     property int iconSize: units.iconSizes.huge
     property int cellSize: iconSize + theme.mSize(theme.defaultFont).height
@@ -61,8 +60,12 @@ PlasmaCore.Dialog {
 
     function reset() {
         if (!searching) {
+            if (filterListScrollArea.visible) {
+                filterList.currentIndex = 0;
+            } else {
                 pageList.model = rootModel.modelForRow(0);
                 paginationBar.model = rootModel.modelForRow(0);
+            }
         }
 
         searchField.text = "";
@@ -72,7 +75,7 @@ PlasmaCore.Dialog {
         pageList.currentItem.itemGrid.currentIndex = -1;
     }
 
-    FocusScope {
+    mainItem: FocusScope {
         Layout.minimumWidth: (cellSize * 6) + units.smallSpacing
         Layout.maximumWidth: (cellSize * 6) + units.smallSpacing
         Layout.minimumHeight: (cellSize * 4) + searchField.height + systemFavoritesGrid.height + paginationBar.height + (2 * units.smallSpacing)
@@ -212,7 +215,7 @@ PlasmaCore.Dialog {
 
                     dragEnabled: (index == 0)
 
-                    model: searching ? runnerModel.modelForRow(index) : rootModel.modelForRow(index)
+                    model: searching ? runnerModel.modelForRow(index) : rootModel.modelForRow(filterListScrollArea.visible ? filterList.currentIndex : 0).modelForRow(index)
 
                     onCurrentIndexChanged: {
                         if (currentIndex != -1) {
@@ -250,29 +253,29 @@ PlasmaCore.Dialog {
                     }
                 }
 
-                Kicker.WheelInterceptor {
+                SimpleMenu.WheelInterceptor {
                     anchors.fill: parent
                     z: 1
 
-//                    onWheelMoved: {
-//                        if (delta.x > 0 || delta.y > 0) {
-//                            var newIndex = pageList.currentIndex - 1;
+                    onWheelMoved: {
+                        if (delta.x > 0 || delta.y > 0) {
+                            var newIndex = pageList.currentIndex - 1;
 
-//                            if (newIndex < 0) {
-//                                newIndex = (pageList.count - 1);
-//                            }
+                            if (newIndex < 0) {
+                                newIndex = (pageList.count - 1);
+                            }
 
-//                            pageList.currentIndex = newIndex;
-//                        } else {
-//                            var newIndex = pageList.currentIndex + 1;
+                            pageList.currentIndex = newIndex;
+                        } else {
+                            var newIndex = pageList.currentIndex + 1;
 
-//                            if (newIndex == pageList.count) {
-//                                newIndex = 0;
-//                            }
+                            if (newIndex == pageList.count) {
+                                newIndex = 0;
+                            }
 
-//                            pageList.currentIndex = newIndex;
-//                        }
-//                    }
+                            pageList.currentIndex = newIndex;
+                        }
+                    }
                 }
             }
         }
@@ -281,13 +284,12 @@ PlasmaCore.Dialog {
     ItemGridView {
         id: systemFavoritesGrid
 
-        clip: true
         anchors {
             bottom: paginationBar.top
             horizontalCenter: parent.horizontalCenter
         }
 
-        width: cellWidth * systemFavorites.count
+        width: cellWidth * model.count
         height: 62
 
         cellWidth: height + 8
@@ -298,7 +300,7 @@ PlasmaCore.Dialog {
         horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
         verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
-        dragEnabled: false
+        dragEnabled: true
         showLabels: true
 
         model: systemFavorites
@@ -321,6 +323,7 @@ PlasmaCore.Dialog {
         }
     }
 
+
     ListView {
         id: paginationBar
 
@@ -334,7 +337,7 @@ PlasmaCore.Dialog {
 
         orientation: Qt.Horizontal
 
-        model: rootModel
+        model: rootModel.modelForRow(0)
 
         delegate: Item {
             width: units.iconSizes.small
@@ -391,6 +394,185 @@ PlasmaCore.Dialog {
                         }
 
                         pageList.currentIndex = newIndex;
+                    }
+                }
+            }
+        }
+    }
+
+    PlasmaExtras.ScrollArea {
+        id: filterListScrollArea
+
+        anchors {
+            left: pageListScrollArea.right
+            leftMargin: units.smallSpacing
+            top: searchField.bottom
+            topMargin: units.smallSpacing
+            bottom: paginationBar.top
+            bottomMargin: units.smallSpacing
+        }
+
+        property int desiredWidth: 0
+
+        width: plasmoid.configuration.showFilterList ? desiredWidth : 0
+
+        enabled: !searching
+        visible: plasmoid.configuration.showFilterList
+
+        property alias currentIndex: filterList.currentIndex
+
+        opacity: root.visible ? (searching ? 0.30 : 1.0) : 0.3
+
+        Behavior on opacity { SmoothedAnimation { duration: units.longDuration; velocity: 0.01 } }
+
+        verticalScrollBarPolicy: (opacity == 1.0) ? Qt.ScrollBarAsNeeded : Qt.ScrollBarAlwaysOff
+
+        onEnabledChanged: {
+            if (!enabled) {
+                filterList.currentIndex = -1;
+            }
+        }
+
+        ListView {
+            id: filterList
+
+            focus: true
+
+            property bool allApps: false
+            property int eligibleWidth: width
+            property int hItemMargins: highlightItemSvg.margins.left + highlightItemSvg.margins.right
+            model: filterListScrollArea.visible ? rootModel : null
+
+            boundsBehavior: Flickable.StopAtBounds
+            snapMode: ListView.SnapToItem
+            spacing: 0
+            keyNavigationWraps: true
+
+            delegate: MouseArea {
+                id: item
+
+                property int textWidth: label.contentWidth
+                property int mouseCol
+
+                width: parent.width
+                height: label.paintedHeight + highlightItemSvg.margins.top + highlightItemSvg.margins.bottom
+
+                Accessible.role: Accessible.MenuItem
+                Accessible.name: model.display
+
+                acceptedButtons: Qt.LeftButton
+
+                hoverEnabled: true
+
+                onContainsMouseChanged: {
+                    if (!containsMouse) {
+                        updateCurrentItemTimer.stop();
+                    }
+                }
+
+                onPositionChanged: { // Lazy menu implementation.
+                    mouseCol = mouse.x;
+
+                    if (index == ListView.view.currentIndex) {
+                        updateCurrentItem();
+                    } else if ((index == ListView.view.currentIndex - 1) && mouse.y < (item.height - 6)
+                        || (index == ListView.view.currentIndex + 1) && mouse.y > 5) {
+
+                        if (mouse.x > ListView.view.eligibleWidth - 5) {
+                            updateCurrentItem();
+                        }
+                    } else if (mouse.x > ListView.view.eligibleWidth) {
+                        updateCurrentItem();
+                    }
+
+                    updateCurrentItemTimer.start();
+                }
+
+                function updateCurrentItem() {
+                    ListView.view.currentIndex = index;
+                    ListView.view.eligibleWidth = Math.min(width, mouseCol);
+                }
+
+                Timer {
+                    id: updateCurrentItemTimer
+
+                    interval: 50
+                    repeat: false
+
+                    onTriggered: parent.updateCurrentItem()
+                }
+
+                PlasmaExtras.Heading {
+                    id: label
+
+                    anchors {
+                        fill: parent
+                        leftMargin: highlightItemSvg.margins.left
+                        rightMargin: highlightItemSvg.margins.right
+                    }
+
+                    elide: Text.ElideRight
+                    wrapMode: Text.NoWrap
+                    opacity: 1.0
+
+                    level: 5
+
+                    text: model.display
+                }
+            }
+
+            highlight: PlasmaComponents.Highlight {
+                anchors {
+                    top: filterList.currentItem ? filterList.currentItem.top : undefined
+                    left: filterList.currentItem ? filterList.currentItem.left : undefined
+                    bottom: filterList.currentItem ? filterList.currentItem.bottom : undefined
+                }
+
+                opacity: filterListScrollArea.focus ? 1.0 : 0.7
+
+                width: (highlightItemSvg.margins.left
+                    + filterList.currentItem.textWidth
+                    + highlightItemSvg.margins.right
+                    + units.smallSpacing)
+
+                visible: filterList.currentItem
+            }
+
+            highlightFollowsCurrentItem: false
+            highlightMoveDuration: 0
+            highlightResizeDuration: 0
+
+            onCurrentIndexChanged: applyFilter()
+
+            onCountChanged: {
+                var width = 0;
+
+                for (var i = 0; i < rootModel.count; ++i) {
+                    headingMetrics.text = rootModel.labelForRow(i);
+
+                    if (headingMetrics.width > width) {
+                        width = headingMetrics.width;
+                    }
+                }
+
+                filterListScrollArea.desiredWidth = width + hItemMargins + units.gridUnit;
+            }
+
+            function applyFilter() {
+                if (filterListScrollArea.visible && !searching && currentIndex >= 0) {
+                    pageList.model = rootModel.modelForRow(currentIndex);
+                    paginationBar.model = pageList.model;
+                }
+            }
+
+            Keys.onPressed: {
+                if (event.key == Qt.Key_left) {
+                    event.accepted = true;
+
+                    var currentRow = Math.max(0, Math.ceil(currentItem.y / cellSize) - 1);
+
+                    if (pageList.currentItem) {
+                        pageList.currentItem.itemGrid.tryActivate(currentRow, 5);
                     }
                 }
             }

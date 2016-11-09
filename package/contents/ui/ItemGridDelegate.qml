@@ -108,7 +108,7 @@ MouseArea {
         height: width
 
         animated: false
-        // usesPlasmaTheme: view.usesPlasmaTheme
+        usesPlasmaTheme: view.usesPlasmaTheme
 
         source: model.decoration
     }
