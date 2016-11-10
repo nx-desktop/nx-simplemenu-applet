@@ -53,7 +53,6 @@ set_package_properties(PackageKitQt5 PROPERTIES DESCRIPTION "Software Manager in
 
 find_package(KF5Activities ${KF5_VERSION})
 set_package_properties(KF5Activities PROPERTIES DESCRIPTION "management of Plasma activities"
-                       TYPE OPTIONAL
                        PURPOSE "Needed by activity related plasmoids and the pager."
                       )
 
