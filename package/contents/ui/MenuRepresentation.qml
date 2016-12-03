@@ -78,8 +78,8 @@ NomadMenu.SimpleMenuDialog {
     mainItem: FocusScope {
         Layout.minimumWidth: (cellSize * 6) + units.smallSpacing
         Layout.maximumWidth: (cellSize * 6) + units.smallSpacing
-        Layout.minimumHeight: (cellSize * 4) + searchField.height + systemFavoritesGrid.height + paginationBar.height + (2 * units.smallSpacing)
-        Layout.maximumHeight: (cellSize * 4) + searchField.height + systemFavoritesGrid.height + paginationBar.height + (2 * units.smallSpacing)
+        Layout.minimumHeight: (cellSize * 4) + searchField.height + systemFavoritesGrid.height + paginationBar.height + 42 + (2 * units.smallSpacing)
+        Layout.maximumHeight: (cellSize * 4) + searchField.height + systemFavoritesGrid.height + paginationBar.height + 42 + (2 * units.smallSpacing)
 
         focus: true
 
@@ -286,14 +286,15 @@ NomadMenu.SimpleMenuDialog {
 
         anchors {
             bottom: paginationBar.top
+            bottomMargin: 20
             horizontalCenter: parent.horizontalCenter
         }
 
         width: cellWidth * model.count
-        height: 62
+        height: 80
 
-        cellWidth: height + 8
-        cellHeight: height - 20
+        cellWidth:  height
+        cellHeight: height - 30
 
         iconSize: 24
 
@@ -329,6 +330,7 @@ NomadMenu.SimpleMenuDialog {
 
         anchors {
             bottom: parent.bottom
+            bottomMargin: 22
             horizontalCenter: parent.horizontalCenter
         }
 

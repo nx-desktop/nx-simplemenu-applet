@@ -29,7 +29,7 @@ MouseArea {
     id: item
 
     width: GridView.view.cellWidth
-    height: width
+    height: icon.height + label.height + units.smallSpacing * 2
 
     signal actionTriggered(string actionId, variant actionArgument)
     signal aboutToShowActionMenu(variant actionMenu)
