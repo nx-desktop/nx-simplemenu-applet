@@ -25,6 +25,7 @@
 #include <QCollator>
 #include <QQmlPropertyMap>
 #include <QTimer>
+#include <QDebug>
 
 #include <KLocalizedString>
 #include <KSycoca>
@@ -61,18 +62,24 @@ AppsModel::AppsModel(const QList<AbstractEntry *> entryList, bool deleteEntriesO
 , m_appNameFormat(AppEntry::NameOnly)
 {
     foreach(AbstractEntry *suggestedEntry, entryList) {
-        bool found = false;
+        const AppEntry *suggestedAppEntry = static_cast<const AppEntry *>(suggestedEntry);
 
-        foreach (const AbstractEntry *entry, m_entryList) {
-            if (entry->type() == AbstractEntry::RunnableType
-                && static_cast<const AppEntry *>(entry)->service()->storageId()
-                == static_cast<const AppEntry *>(suggestedEntry)->service()->storageId()) {
-                found = true;
-            }
-        }
-
-        if (!found) {
+        if (suggestedAppEntry->type() == AbstractEntry::GroupType)
             m_entryList << suggestedEntry;
+        else{
+            bool found = false;
+            foreach (const AbstractEntry *entry, m_entryList) {
+                if (entry->type() == AbstractEntry::RunnableType) {
+                    const AppEntry *appEntry = static_cast<const AppEntry *>(entry);
+                    if(appEntry->service()->storageId() == suggestedAppEntry->service()->storageId()) {
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                m_entryList << suggestedEntry;
+            }
         }
     }
 
@@ -330,6 +337,7 @@ void AppsModel::refresh()
 
 void AppsModel::refreshInternal()
 {
+    qDebug() << "Refresh internal " << description();
     if (m_staticEntryList) {
         return;
     }
@@ -386,7 +394,33 @@ void AppsModel::refreshInternal()
             sortEntries();
         }
 
-        QList<AbstractEntry *> groups;
+        // Apps staking
+        QList<AbstractEntry *> groupedEntryList;
+        QHash<QString, QList<AbstractEntry *>> groups;
+        QList<AbstractEntry *> current_group;
+        groups.insert("g1", current_group);
+        QStringList hidden;
+        hidden << "debian-xterm.desktop" << "debian-uxterm.desktop" << "org.kde.yakuake.desktop";
+        foreach(AbstractEntry *entry, m_entryList) {
+            qDebug() << entry->name() << entry->id();
+            if (hidden.contains(entry->id()))
+                current_group.append(entry);
+            else
+                groupedEntryList.append(entry);
+        }
+
+        for (QString key : groups.keys()) {
+            QList<AbstractEntry *> groupEntries = groups[key];
+
+            AppsModel *model = new AppsModel(groupEntries, false, this);
+            GroupEntry * groupEntry = new GroupEntry(this, QString("Terminals"), QString("ok"), model);
+            qDebug() << "NEW GROUP" << groupEntry->name() << groupEntry->type();
+            groupedEntryList.append(groupEntry);
+        }
+        m_entryList = groupedEntryList;
+
+        // Paging
+        QList<AbstractEntry *> pages;
 
         int at = 0;
         QList<AbstractEntry *> page;
@@ -397,7 +431,7 @@ void AppsModel::refreshInternal()
             if (at == 23) {
                 at = 0;
                 AppsModel *model = new AppsModel(page, false, this);
-                groups.append(new GroupEntry(this, QString(), QString(), model));
+                pages.append(new GroupEntry(this, QString(), QString(), model));
                 page.clear();
             } else {
                 ++at;
@@ -407,10 +441,10 @@ void AppsModel::refreshInternal()
         if (page.count()) {
             AppsModel *model = new AppsModel(page, true, this);
             // FIXME: Use AppGroupEntry?
-            groups.append(new GroupEntry(this, QString(), QString(), model));
+            pages.append(new GroupEntry(this, QString(), QString(), model));
         }
 
-        m_entryList = groups;
+        m_entryList = pages;
     }
 }
 

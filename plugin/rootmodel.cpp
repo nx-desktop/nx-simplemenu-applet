@@ -259,8 +259,8 @@ void RootModel::refresh()
     m_recentContactsModel = nullptr;
 
     if (m_showAllSubtree) {
-        QHash<QString, AppEntry *> appsHash;
-        QList<AppEntry *> apps;
+        QHash<QString, AbstractEntry *> appsHash;
+        QList<AbstractEntry *> apps;
         QList<AbstractEntry *> groups;
 
         foreach (const AbstractEntry *groupEntry, m_entryList) {
@@ -271,13 +271,24 @@ void RootModel::refresh()
                 AbstractModel *subModel = subGroupEntry->childModel();
 
                 for (int i = 0; i < subModel->count(); ++i) {
-                    AppEntry *appEntry = static_cast<AppEntry*>(subModel->index(i, 0).internalPointer());
+                    AbstractEntry *abstractEntry = static_cast<AbstractEntry *>(subModel->index(i, 0).internalPointer());
+                    if (abstractEntry->type() == AbstractEntry::RunnableType) {
+                        AppEntry *appEntry = static_cast<AppEntry*>(abstractEntry);
 
-                    if (appEntry->name().isEmpty()) {
-                        continue;
+                        if (appEntry->name().isEmpty()) {
+                            continue;
+                        }
+                        appsHash.insert(appEntry->service()->menuId(), appEntry);
                     }
 
-                    appsHash.insert(appEntry->service()->menuId(), appEntry);
+                    if (abstractEntry->type() == AbstractEntry::GroupType) {
+                        GroupEntry *groupEntry = static_cast<GroupEntry *>(abstractEntry);
+
+                        if (groupEntry->name().isEmpty()) {
+                            continue;
+                        }
+                        appsHash.insert(groupEntry->id(), groupEntry);
+                    }
                 }
             }
         }
@@ -299,8 +310,8 @@ void RootModel::refresh()
         int at = 0;
         QList<AbstractEntry *> page;
 
-        foreach(AppEntry *app, apps) {
-            page.append(app);
+        foreach(AbstractEntry *entry, apps) {
+            page.append(entry);
 
             if (at == 23) {
                 at = 0;
