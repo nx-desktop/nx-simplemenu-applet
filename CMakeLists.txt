@@ -106,6 +106,7 @@ set(nomadmenuplugin_SRCS
     plugin/systemsettings.cpp
     plugin/wheelinterceptor.cpp
     plugin/windowsystem.cpp
+    plugin/applicationsgroups.cpp
 )
 
 if(PackageKitQt5_FOUND)

@@ -25,10 +25,10 @@
 #include <QCollator>
 #include <QQmlPropertyMap>
 #include <QTimer>
-#include <QDebug>
 
 #include <KLocalizedString>
 #include <KSycoca>
+
 
 AppsModel::AppsModel(const QString &entryPath, bool flat, bool separators, QObject *parent)
 : AbstractModel(parent)
@@ -337,7 +337,6 @@ void AppsModel::refresh()
 
 void AppsModel::refreshInternal()
 {
-    qDebug() << "Refresh internal " << description();
     if (m_staticEntryList) {
         return;
     }
@@ -393,31 +392,6 @@ void AppsModel::refreshInternal()
         if (m_sortNeeded) {
             sortEntries();
         }
-
-        // Apps staking
-        QList<AbstractEntry *> groupedEntryList;
-        QHash<QString, QList<AbstractEntry *>> groups;
-        QList<AbstractEntry *> current_group;
-        groups.insert("g1", current_group);
-        QStringList hidden;
-        hidden << "debian-xterm.desktop" << "debian-uxterm.desktop" << "org.kde.yakuake.desktop";
-        foreach(AbstractEntry *entry, m_entryList) {
-            qDebug() << entry->name() << entry->id();
-            if (hidden.contains(entry->id()))
-                current_group.append(entry);
-            else
-                groupedEntryList.append(entry);
-        }
-
-        for (QString key : groups.keys()) {
-            QList<AbstractEntry *> groupEntries = groups[key];
-
-            AppsModel *model = new AppsModel(groupEntries, false, this);
-            GroupEntry * groupEntry = new GroupEntry(this, QString("Terminals"), QString("ok"), model);
-            qDebug() << "NEW GROUP" << groupEntry->name() << groupEntry->type();
-            groupedEntryList.append(groupEntry);
-        }
-        m_entryList = groupedEntryList;
 
         // Paging
         QList<AbstractEntry *> pages;
@@ -545,11 +519,11 @@ void AppsModel::sortEntries()
 
     std::sort(m_entryList.begin(), m_entryList.end(),
         [&c](AbstractEntry* a, AbstractEntry* b) {
-            if (a->type() != b->type()) {
-                return a->type() > b->type();
-            } else {
+//            if (a->type() != b->type()) {
+//                return a->type() > b->type();
+//            } else {
                 return c.compare(a->name(), b->name()) < 0;
-            }
+//            }
         });
 }
 

@@ -243,6 +243,40 @@ AbstractModel* RootModel::systemFavoritesModel()
     return nullptr;
 }
 
+QString RootModel::rawRelations() const
+{
+    return m_rawRelations;
+}
+
+QString RootModel::rawGroupInfo() const
+{
+    return m_rawGroupInfo;
+}
+
+void RootModel::setRawRelations(QString rawRelations)
+{
+    if (m_rawRelations == rawRelations)
+        return;
+
+    m_rawRelations = rawRelations;
+    m_applicationsGroupsCache.setRawRelations(rawRelations);
+    emit rawRelationsChanged(rawRelations);
+
+    refresh();
+}
+
+void RootModel::setRawGroupInfo(QString rawGroupInfo)
+{
+    if (m_rawGroupInfo == rawGroupInfo)
+        return;
+
+    m_rawGroupInfo = rawGroupInfo;
+    m_applicationsGroupsCache.setRawGroupInfo(rawGroupInfo);
+    emit rawGroupInfoChanged(rawGroupInfo);
+
+    refresh();
+}
+
 void RootModel::refresh()
 {
     if (!m_appletInterface) {
@@ -261,7 +295,7 @@ void RootModel::refresh()
     if (m_showAllSubtree) {
         QHash<QString, AbstractEntry *> appsHash;
         QList<AbstractEntry *> apps;
-        QList<AbstractEntry *> groups;
+        QList<AbstractEntry *> pages;
 
         foreach (const AbstractEntry *groupEntry, m_entryList) {
             AbstractModel *model = groupEntry->childModel();
@@ -295,15 +329,46 @@ void RootModel::refresh()
 
         apps = appsHash.values();
 
+        // Apps stacking
+        QList<AbstractEntry *> groupedEntryList;
+        QHash<QString, QList<AbstractEntry *>> groups;
+
+        for (QString groupId : m_applicationsGroupsCache.groupIds())
+            groups.insert(groupId, QList<AbstractEntry *>());
+
+        foreach(AbstractEntry *entry, apps) {
+            QString groupId = m_applicationsGroupsCache.applicationGroupId(entry->id());
+            if (!groupId.isEmpty() && groups.contains(groupId)) {
+                QList<AbstractEntry *> groupEntries = groups.value(groupId);
+                groupEntries.append(entry);
+
+                groups.insert(groupId, groupEntries);
+            } else
+                groupedEntryList.append(entry);
+        }
+
+        for (QString key : groups.keys()) {
+            if (groups[key].length() > 0) {
+                QList<AbstractEntry *> groupEntries = groups[key];
+
+                QString groupName = m_applicationsGroupsCache.groupNameById(key);
+
+                AppsModel *model = new AppsModel(groupEntries, false, this);
+                GroupEntry * groupEntry = new GroupEntry(this, groupName, QString(""), model);
+                groupedEntryList.append(groupEntry);
+            }
+        }
+        apps = groupedEntryList;
+
         QCollator c;
 
         std::sort(apps.begin(), apps.end(),
             [&c](AbstractEntry* a, AbstractEntry* b) {
-                if (a->type() != b->type()) {
-                    return a->type() > b->type();
-                } else {
+//                if (a->type() != b->type()) {
+//                    return a->type() > b->type();
+//                } else {
                     return c.compare(a->name(), b->name()) < 0;
-                }
+//                }
             });
 
 
@@ -316,7 +381,7 @@ void RootModel::refresh()
             if (at == 23) {
                 at = 0;
                 AppsModel *model = new AppsModel(page, false, this);
-                groups.append(new GroupEntry(this, QString(), QString(), model));
+                pages.append(new GroupEntry(this, QString(), QString(), model));
                 page.clear();
             } else {
                 ++at;
@@ -325,12 +390,12 @@ void RootModel::refresh()
 
         if (page.count()) {
             AppsModel *model = new AppsModel(page, false, this);
-            groups.append(new GroupEntry(this, QString(), QString(), model));
+            pages.append(new GroupEntry(this, QString(), QString(), model));
         }
 
-        groups.prepend(new GroupEntry(this, QString(), QString(), m_favorites));
+        pages.prepend(new GroupEntry(this, QString(), QString(), m_favorites));
 
-        allModel = new AppsModel(groups, true, this);
+        allModel = new AppsModel(pages, true, this);
         allModel->setDescription(QStringLiteral("KICKER_ALL_MODEL")); // Intentionally no i18n.
     }
 

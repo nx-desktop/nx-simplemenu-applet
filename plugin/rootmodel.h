@@ -61,6 +61,9 @@ class RootModel : public AppsModel
 
     Q_PROPERTY(QObject* appletInterface READ appletInterface WRITE setAppletInterface NOTIFY appletInterfaceChanged);
 
+    Q_PROPERTY(QString rawRelations READ rawRelations WRITE setRawRelations NOTIFY rawRelationsChanged)
+    Q_PROPERTY(QString rawGroupInfo READ rawGroupInfo WRITE setRawGroupInfo NOTIFY rawGroupInfoChanged)
+
     public:
         explicit RootModel(QObject *parent = 0);
         ~RootModel();
@@ -87,7 +90,15 @@ class RootModel : public AppsModel
         AbstractModel* favoritesModel();
         AbstractModel* systemFavoritesModel();
 
-    Q_SIGNALS:
+        QString rawRelations() const;
+
+        QString rawGroupInfo() const;
+
+public Q_SLOTS:
+        void setRawRelations(QString rawRelations);
+        void setRawGroupInfo(QString rawGroupInfo);
+
+Q_SIGNALS:
         void refreshed() const;
         void systemFavoritesModelChanged() const;
         void showAllSubtreeChanged() const;
@@ -97,7 +108,10 @@ class RootModel : public AppsModel
         void recentAppsModelChanged() const;
         void appletInterfaceChanged() const;
 
-    protected Q_SLOTS:
+        void rawRelationsChanged(QString rawRelations);
+        void rawGroupInfoChanged(QString rawGroupInfo);
+
+protected Q_SLOTS:
         void refresh();
 
     private:
@@ -115,7 +129,10 @@ class RootModel : public AppsModel
         RecentDocsModel *m_recentDocsModel;
         RecentContactsModel *m_recentContactsModel;
 
+        ApplicationsGroups m_applicationsGroupsCache;
         QObject *m_appletInterface;
+        QString m_rawRelations;
+        QString m_rawGroupInfo;
 };
 
 #endif

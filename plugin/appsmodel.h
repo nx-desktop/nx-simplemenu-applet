@@ -23,6 +23,7 @@
 
 #include "abstractmodel.h"
 #include "appentry.h"
+#include "applicationsgroups.h"
 
 #include <KServiceGroup>
 
@@ -37,6 +38,7 @@ class AppsModel : public AbstractModel
     Q_PROPERTY(bool flat READ flat WRITE setFlat NOTIFY flatChanged)
     Q_PROPERTY(bool showSeparators READ showSeparators WRITE setShowSeparators NOTIFY showSeparatorsChanged)
     Q_PROPERTY(int appNameFormat READ appNameFormat WRITE setAppNameFormat NOTIFY appNameFormatChanged)
+
 
     public:
         explicit AppsModel(const QString &entryPath = QString(), bool flat = false, bool separators = true, QObject *parent = 0);
@@ -71,14 +73,17 @@ class AppsModel : public AbstractModel
 
         void entryChanged(AbstractEntry *entry);
 
-    Q_SIGNALS:
+
+Q_SIGNALS:
         void cleared() const;
         void flatChanged() const;
         void showSeparatorsChanged() const;
         void appNameFormatChanged() const;
         void hiddenEntriesChanged() const;
 
-    protected Q_SLOTS:
+        void groupsChanged(QVariantHash groups);
+
+protected Q_SLOTS:
         virtual void refresh();
 
     protected:
