@@ -1,6 +1,7 @@
 /***************************************************************************
  *   Copyright (C) 2013 by Aurélien Gâteau <agateau@kde.org>               *
  *   Copyright (C) 2013-2015 by Eike Hein <hein@kde.org>                   *
+ *   Copyright (C) 2017 by Alexis Lopez Zubieta <azubieta90@gmail.com>     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -89,4 +90,20 @@ function handleFavoriteAction(actionId, actionArgument) {
     } else if (actionId == "_kicker_favorite_add") {
         favoriteModel.addFavorite(favoriteId);
     }
+}
+
+function randomId() {
+    var dict = "asdfghjklqwertyuipzxcvbnm1234567890";
+    var date = new Date()
+
+    var milliseconds = date.getTime()
+
+    var id = "";
+    while (milliseconds > 0) {
+        var digit = Math.floor(milliseconds % 35);
+        id = id + dict[digit]
+        milliseconds = Math.floor(milliseconds / 35)
+    }
+
+    return id;
 }

@@ -73,10 +73,13 @@ Item {
         showSeparators: false
         appletInterface: plasmoid
 
-        // showAllSubtree: true
-        showRecentApps: plasmoid.configuration.showRecentApps
-        showRecentDocs: plasmoid.configuration.showRecentDocs
-        showRecentContacts: plasmoid.configuration.showRecentContacts
+        rawGroupInfo : plasmoid.configuration.groupsData
+        rawRelations : plasmoid.configuration.relations
+
+         showAllSubtree: true
+//        showRecentApps: plasmoid.configuration.showRecentApps
+//        showRecentDocs: plasmoid.configuration.showRecentDocs
+//        showRecentContacts: plasmoid.configuration.showRecentContacts
 
         onShowRecentAppsChanged: {
             plasmoid.configuration.showRecentApps = showRecentApps;

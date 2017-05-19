@@ -43,6 +43,7 @@ MouseArea {
         || (("hasActionList" in model) && (model.hasActionList == true)))
     property Item view: GridView.view
     property Item menu: actionMenu
+    property var childrenModel: GridView.view.model.modelForRow(index);
 
     Accessible.role: Accessible.MenuItem
     Accessible.name: model.display
@@ -96,9 +97,20 @@ MouseArea {
         }
     }
 
-    PlasmaCore.IconItem {
-        id: icon
+    Component.onCompleted: {
+        if (!hasChildren)
+            return;
 
+        print(" ---------------------------------------------- ")
+//        for (var k in model) {
+//            print(" ---- ", k, model[k])
+//        }
+//        for (var k in GridView.view.model) {
+//            print(" ---- ", k, GridView.view.model[k])
+//        }
+    }
+    Item {
+        id: icon
         y: showLabel ? (2 * highlightItemSvg.margins.top) : 0
 
         anchors.horizontalCenter: parent.horizontalCenter
@@ -107,10 +119,46 @@ MouseArea {
         width: iconSize
         height: width
 
-        animated: false
-        usesPlasmaTheme: view.usesPlasmaTheme
+        PlasmaCore.IconItem {
+            id: icon_simple
+            anchors.fill: parent
+            animated: false
+            usesPlasmaTheme: view.usesPlasmaTheme
 
-        source: model.decoration
+            source: model.decoration
+            visible: !hasChildren
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            visible: icon_simple.visible == false
+
+            color: "darkgray"
+            border.color: "gray"
+            border.width: 1
+            radius: 5
+
+            Flow {
+                anchors.fill: parent
+                anchors.margins: 4
+                spacing: 4
+                clip: true
+
+
+                Repeater {
+                    model: item.childrenModel
+                    delegate: PlasmaCore.IconItem {
+                        height: iconSize / 4
+                        width: iconSize / 4
+
+                        animated: false
+                        usesPlasmaTheme: view.usesPlasmaTheme
+                        source: decoration
+                        Component.onCompleted: print(" --- ", display)
+                    }
+                }
+            }
+        }
     }
 
     PlasmaComponents.Label {

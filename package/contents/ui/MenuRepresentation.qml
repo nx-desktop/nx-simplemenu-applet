@@ -60,12 +60,8 @@ NomadMenu.SimpleMenuDialog {
 
     function reset() {
         if (!searching) {
-            if (filterListScrollArea.visible) {
-                filterList.currentIndex = 0;
-            } else {
-                pageList.model = rootModel.modelForRow(0);
-                paginationBar.model = rootModel.modelForRow(0);
-            }
+            pageList.model = rootModel.modelForRow(0);
+            paginationBar.model = rootModel.modelForRow(0);
         }
 
         searchField.text = "";
@@ -215,7 +211,9 @@ NomadMenu.SimpleMenuDialog {
 
                     dragEnabled: (index == 0)
 
-                    model: searching ? runnerModel.modelForRow(index) : rootModel.modelForRow(filterListScrollArea.visible ? filterList.currentIndex : 0).modelForRow(index)
+                    model: searching ? runnerModel.modelForRow(index) : rootModel.modelForRow(0).modelForRow(index)
+
+                    onModelChanged: print(rootModel.modelForRow(0).description)
 
                     onCurrentIndexChanged: {
                         if (currentIndex != -1) {
@@ -402,184 +400,184 @@ NomadMenu.SimpleMenuDialog {
         }
     }
 
-    PlasmaExtras.ScrollArea {
-        id: filterListScrollArea
+//    PlasmaExtras.ScrollArea {
+//        id: filterListScrollArea
 
-        anchors {
-            left: pageListScrollArea.right
-            leftMargin: units.smallSpacing
-            top: searchField.bottom
-            topMargin: units.smallSpacing
-            bottom: paginationBar.top
-            bottomMargin: units.smallSpacing
-        }
+//        anchors {
+//            left: pageListScrollArea.right
+//            leftMargin: units.smallSpacing
+//            top: searchField.bottom
+//            topMargin: units.smallSpacing
+//            bottom: paginationBar.top
+//            bottomMargin: units.smallSpacing
+//        }
 
-        property int desiredWidth: 0
+//        property int desiredWidth: 0
 
-        width: plasmoid.configuration.showFilterList ? desiredWidth : 0
+//        width: plasmoid.configuration.showFilterList ? desiredWidth : 0
 
-        enabled: !searching
-        visible: plasmoid.configuration.showFilterList
+//        enabled: !searching
+//        visible: plasmoid.configuration.showFilterList
 
-        property alias currentIndex: filterList.currentIndex
+//        property alias currentIndex: filterList.currentIndex
 
-        opacity: root.visible ? (searching ? 0.30 : 1.0) : 0.3
+//        opacity: root.visible ? (searching ? 0.30 : 1.0) : 0.3
 
-        Behavior on opacity { SmoothedAnimation { duration: units.longDuration; velocity: 0.01 } }
+//        Behavior on opacity { SmoothedAnimation { duration: units.longDuration; velocity: 0.01 } }
 
-        verticalScrollBarPolicy: (opacity == 1.0) ? Qt.ScrollBarAsNeeded : Qt.ScrollBarAlwaysOff
+//        verticalScrollBarPolicy: (opacity == 1.0) ? Qt.ScrollBarAsNeeded : Qt.ScrollBarAlwaysOff
 
-        onEnabledChanged: {
-            if (!enabled) {
-                filterList.currentIndex = -1;
-            }
-        }
+//        onEnabledChanged: {
+//            if (!enabled) {
+//                filterList.currentIndex = -1;
+//            }
+//        }
 
-        ListView {
-            id: filterList
+//        ListView {
+//            id: filterList
 
-            focus: true
+//            focus: true
 
-            property bool allApps: false
-            property int eligibleWidth: width
-            property int hItemMargins: highlightItemSvg.margins.left + highlightItemSvg.margins.right
-            model: filterListScrollArea.visible ? rootModel : null
+//            property bool allApps: false
+//            property int eligibleWidth: width
+//            property int hItemMargins: highlightItemSvg.margins.left + highlightItemSvg.margins.right
+//            model: filterListScrollArea.visible ? rootModel : null
 
-            boundsBehavior: Flickable.StopAtBounds
-            snapMode: ListView.SnapToItem
-            spacing: 0
-            keyNavigationWraps: true
+//            boundsBehavior: Flickable.StopAtBounds
+//            snapMode: ListView.SnapToItem
+//            spacing: 0
+//            keyNavigationWraps: true
 
-            delegate: MouseArea {
-                id: item
+//            delegate: MouseArea {
+//                id: item
 
-                property int textWidth: label.contentWidth
-                property int mouseCol
+//                property int textWidth: label.contentWidth
+//                property int mouseCol
 
-                width: parent.width
-                height: label.paintedHeight + highlightItemSvg.margins.top + highlightItemSvg.margins.bottom
+//                width: parent.width
+//                height: label.paintedHeight + highlightItemSvg.margins.top + highlightItemSvg.margins.bottom
 
-                Accessible.role: Accessible.MenuItem
-                Accessible.name: model.display
+//                Accessible.role: Accessible.MenuItem
+//                Accessible.name: model.display
 
-                acceptedButtons: Qt.LeftButton
+//                acceptedButtons: Qt.LeftButton
 
-                hoverEnabled: true
+//                hoverEnabled: true
 
-                onContainsMouseChanged: {
-                    if (!containsMouse) {
-                        updateCurrentItemTimer.stop();
-                    }
-                }
+//                onContainsMouseChanged: {
+//                    if (!containsMouse) {
+//                        updateCurrentItemTimer.stop();
+//                    }
+//                }
 
-                onPositionChanged: { // Lazy menu implementation.
-                    mouseCol = mouse.x;
+//                onPositionChanged: { // Lazy menu implementation.
+//                    mouseCol = mouse.x;
 
-                    if (index == ListView.view.currentIndex) {
-                        updateCurrentItem();
-                    } else if ((index == ListView.view.currentIndex - 1) && mouse.y < (item.height - 6)
-                        || (index == ListView.view.currentIndex + 1) && mouse.y > 5) {
+//                    if (index == ListView.view.currentIndex) {
+//                        updateCurrentItem();
+//                    } else if ((index == ListView.view.currentIndex - 1) && mouse.y < (item.height - 6)
+//                        || (index == ListView.view.currentIndex + 1) && mouse.y > 5) {
 
-                        if (mouse.x > ListView.view.eligibleWidth - 5) {
-                            updateCurrentItem();
-                        }
-                    } else if (mouse.x > ListView.view.eligibleWidth) {
-                        updateCurrentItem();
-                    }
+//                        if (mouse.x > ListView.view.eligibleWidth - 5) {
+//                            updateCurrentItem();
+//                        }
+//                    } else if (mouse.x > ListView.view.eligibleWidth) {
+//                        updateCurrentItem();
+//                    }
 
-                    updateCurrentItemTimer.start();
-                }
+//                    updateCurrentItemTimer.start();
+//                }
 
-                function updateCurrentItem() {
-                    ListView.view.currentIndex = index;
-                    ListView.view.eligibleWidth = Math.min(width, mouseCol);
-                }
+//                function updateCurrentItem() {
+//                    ListView.view.currentIndex = index;
+//                    ListView.view.eligibleWidth = Math.min(width, mouseCol);
+//                }
 
-                Timer {
-                    id: updateCurrentItemTimer
+//                Timer {
+//                    id: updateCurrentItemTimer
 
-                    interval: 50
-                    repeat: false
+//                    interval: 50
+//                    repeat: false
 
-                    onTriggered: parent.updateCurrentItem()
-                }
+//                    onTriggered: parent.updateCurrentItem()
+//                }
 
-                PlasmaExtras.Heading {
-                    id: label
+//                PlasmaExtras.Heading {
+//                    id: label
 
-                    anchors {
-                        fill: parent
-                        leftMargin: highlightItemSvg.margins.left
-                        rightMargin: highlightItemSvg.margins.right
-                    }
+//                    anchors {
+//                        fill: parent
+//                        leftMargin: highlightItemSvg.margins.left
+//                        rightMargin: highlightItemSvg.margins.right
+//                    }
 
-                    elide: Text.ElideRight
-                    wrapMode: Text.NoWrap
-                    opacity: 1.0
+//                    elide: Text.ElideRight
+//                    wrapMode: Text.NoWrap
+//                    opacity: 1.0
 
-                    level: 5
+//                    level: 5
 
-                    text: model.display
-                }
-            }
+//                    text: model.display
+//                }
+//            }
 
-            highlight: PlasmaComponents.Highlight {
-                anchors {
-                    top: filterList.currentItem ? filterList.currentItem.top : undefined
-                    left: filterList.currentItem ? filterList.currentItem.left : undefined
-                    bottom: filterList.currentItem ? filterList.currentItem.bottom : undefined
-                }
+//            highlight: PlasmaComponents.Highlight {
+//                anchors {
+//                    top: filterList.currentItem ? filterList.currentItem.top : undefined
+//                    left: filterList.currentItem ? filterList.currentItem.left : undefined
+//                    bottom: filterList.currentItem ? filterList.currentItem.bottom : undefined
+//                }
 
-                opacity: filterListScrollArea.focus ? 1.0 : 0.7
+//                opacity: filterListScrollArea.focus ? 1.0 : 0.7
 
-                width: (highlightItemSvg.margins.left
-                    + filterList.currentItem.textWidth
-                    + highlightItemSvg.margins.right
-                    + units.smallSpacing)
+//                width: (highlightItemSvg.margins.left
+//                    + filterList.currentItem.textWidth
+//                    + highlightItemSvg.margins.right
+//                    + units.smallSpacing)
 
-                visible: filterList.currentItem
-            }
+//                visible: filterList.currentItem
+//            }
 
-            highlightFollowsCurrentItem: false
-            highlightMoveDuration: 0
-            highlightResizeDuration: 0
+//            highlightFollowsCurrentItem: false
+//            highlightMoveDuration: 0
+//            highlightResizeDuration: 0
 
-            onCurrentIndexChanged: applyFilter()
+//            onCurrentIndexChanged: applyFilter()
 
-            onCountChanged: {
-                var width = 0;
+//            onCountChanged: {
+//                var width = 0;
 
-                for (var i = 0; i < rootModel.count; ++i) {
-                    headingMetrics.text = rootModel.labelForRow(i);
+//                for (var i = 0; i < rootModel.count; ++i) {
+//                    headingMetrics.text = rootModel.labelForRow(i);
 
-                    if (headingMetrics.width > width) {
-                        width = headingMetrics.width;
-                    }
-                }
+//                    if (headingMetrics.width > width) {
+//                        width = headingMetrics.width;
+//                    }
+//                }
 
-                filterListScrollArea.desiredWidth = width + hItemMargins + units.gridUnit;
-            }
+//                filterListScrollArea.desiredWidth = width + hItemMargins + units.gridUnit;
+//            }
 
-            function applyFilter() {
-                if (filterListScrollArea.visible && !searching && currentIndex >= 0) {
-                    pageList.model = rootModel.modelForRow(currentIndex);
-                    paginationBar.model = pageList.model;
-                }
-            }
+//            function applyFilter() {
+//                if (filterListScrollArea.visible && !searching && currentIndex >= 0) {
+//                    pageList.model = rootModel.modelForRow(currentIndex);
+//                    paginationBar.model = pageList.model;
+//                }
+//            }
 
-            Keys.onPressed: {
-                if (event.key == Qt.Key_left) {
-                    event.accepted = true;
+//            Keys.onPressed: {
+//                if (event.key == Qt.Key_left) {
+//                    event.accepted = true;
 
-                    var currentRow = Math.max(0, Math.ceil(currentItem.y / cellSize) - 1);
+//                    var currentRow = Math.max(0, Math.ceil(currentItem.y / cellSize) - 1);
 
-                    if (pageList.currentItem) {
-                        pageList.currentItem.itemGrid.tryActivate(currentRow, 5);
-                    }
-                }
-            }
-        }
-    }
+//                    if (pageList.currentItem) {
+//                        pageList.currentItem.itemGrid.tryActivate(currentRow, 5);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     Keys.onPressed: {
         if (event.key == Qt.Key_Escape) {
