@@ -132,6 +132,24 @@ NomadMenu.SimpleMenuDialog {
         }
     }
 
+    GroupSubMenu {
+        id: groupSubMenu
+        visible: false
+
+        x: pageListScrollArea.x
+        y: pageListScrollArea.y
+        height: pageListScrollArea.height
+        width: pageListScrollArea.width
+    }
+//    Rectangle {
+//        x: pageListScrollArea.x
+//        y: pageListScrollArea.y
+//        height: pageListScrollArea.height
+//        width: pageListScrollArea.width
+//        color: 'blue'
+//        opacity: 0.7
+//    }
+
     PlasmaExtras.ScrollArea {
         id: pageListScrollArea
 
@@ -153,6 +171,7 @@ NomadMenu.SimpleMenuDialog {
         ListView {
             id: pageList
 
+            enabled: !groupSubMenu.visible
             anchors.fill: parent
 
             orientation: Qt.Horizontal

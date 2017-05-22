@@ -255,6 +255,13 @@ FocusScope {
 
                     delegate: ItemGridDelegate {
                         showLabel: showLabels
+
+                        onAboutToShowSubgroup: function (model) {
+                            if (groupSubMenu.visible == true)
+                                groupSubMenu.hide()
+                            else
+                                groupSubMenu.show(currentItem, model)
+                        }
                     }
 
                     highlight: PlasmaComponents.Highlight {}

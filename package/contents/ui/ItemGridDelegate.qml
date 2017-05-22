@@ -33,6 +33,7 @@ MouseArea {
 
     signal actionTriggered(string actionId, variant actionArgument)
     signal aboutToShowActionMenu(variant actionMenu)
+    signal aboutToShowSubgroup(var groupModel)
 
     property bool showLabel: true
 
@@ -43,7 +44,9 @@ MouseArea {
         || (("hasActionList" in model) && (model.hasActionList == true)))
     property Item view: GridView.view
     property Item menu: actionMenu
+
     property var childrenModel: GridView.view.model.modelForRow(index);
+    property var isGroup: childrenModel !== null
 
     Accessible.role: Accessible.MenuItem
     Accessible.name: model.display
@@ -61,17 +64,21 @@ MouseArea {
     }
 
     onReleased: {
-        if (pressed && GridView.view.currentItem == item) {
-            GridView.view.model.trigger(index, "", null);
+        if (isGroup)
+            aboutToShowSubgroup(childrenModel)
+        else {
+            if (pressed && GridView.view.currentItem == item) {
+                GridView.view.model.trigger(index, "", null);
 
-            if ("toggle" in root) {
-                root.toggle();
-            } else {
-                root.visible = false;
+                if ("toggle" in root) {
+                    root.toggle();
+                } else {
+                    root.visible = false;
+                }
             }
-        }
 
-        pressed = false;
+            pressed = false;
+        }
     }
 
     onAboutToShowActionMenu: {
@@ -97,18 +104,6 @@ MouseArea {
         }
     }
 
-    Component.onCompleted: {
-        if (!hasChildren)
-            return;
-
-        print(" ---------------------------------------------- ")
-//        for (var k in model) {
-//            print(" ---- ", k, model[k])
-//        }
-//        for (var k in GridView.view.model) {
-//            print(" ---- ", k, GridView.view.model[k])
-//        }
-    }
     Item {
         id: icon
         y: showLabel ? (2 * highlightItemSvg.margins.top) : 0
@@ -126,7 +121,7 @@ MouseArea {
             usesPlasmaTheme: view.usesPlasmaTheme
 
             source: model.decoration
-            visible: !hasChildren
+            visible: !isGroup
         }
 
         Rectangle {
@@ -189,12 +184,16 @@ MouseArea {
             openActionMenu(item);
         } else if ((event.key == Qt.Key_Enter || event.key == Qt.Key_Return)) {
             event.accepted = true;
-            GridView.view.model.trigger(index, "", null);
+            if (isGroup)
+                aboutToShowSubgroup(childrenModel)
+            else {
+                GridView.view.model.trigger(index, "", null);
 
-            if ("toggle" in root) {
-                root.toggle();
-            } else {
-                root.visible = false;
+                if ("toggle" in root) {
+                    root.toggle();
+                } else {
+                    root.visible = false;
+                }
             }
         }
     }
