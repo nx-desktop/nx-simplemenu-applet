@@ -164,7 +164,7 @@ void GroupsModel::removeGroup(QString id)
 {
     int index = m_groups.indexOf(id);
     if (index != -1) {
-        beginRemoveRows(QModelIndex(), m_groups.length(), m_groups.length());
+        beginRemoveRows(QModelIndex(), index, index);
 
         m_groups.removeAll(id);
         m_groupsApps.remove(id);
@@ -181,7 +181,6 @@ void GroupsModel::addAppToGroup(QString groupId, QString appId)
     int index = m_groups.indexOf(groupId);
     if (index != -1) {
         int appIndex = indexOfApp(appId);
-        qDebug() << "adding app " << appId << " with index "<< appIndex;
 
         if (appIndex != -1) {
             m_groupsApps.insertMulti(groupId, m_apps.at(appIndex));

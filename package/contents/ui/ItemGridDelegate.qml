@@ -149,7 +149,6 @@ MouseArea {
                         animated: false
                         usesPlasmaTheme: view.usesPlasmaTheme
                         source: decoration
-                        Component.onCompleted: print(" --- ", display)
                     }
                 }
             }

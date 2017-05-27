@@ -106,7 +106,6 @@ set(nomadmenuplugin_SRCS
     plugin/systemsettings.cpp
     plugin/wheelinterceptor.cpp
     plugin/windowsystem.cpp
-    plugin/applicationsgroups.cpp
     plugin/groupsmodel.cpp
 )
 

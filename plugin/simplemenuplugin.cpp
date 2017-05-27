@@ -18,7 +18,6 @@
  ***************************************************************************/
 
 #include "groupsmodel.h"
-#include "applicationsgroups.h"
 #include "simplemenuplugin.h"
 #include "abstractmodel.h"
 #include "draghelper.h"
@@ -48,6 +47,5 @@ void SimpleMenuPlugin::registerTypes(const char *uri)
     qmlRegisterType<WheelInterceptor>(uri, 0, 1, "WheelInterceptor");
     qmlRegisterType<WindowSystem>(uri, 0, 1, "WindowSystem");
 
-    qmlRegisterType<ApplicationsGroups>();
     qmlRegisterType<GroupsModel>();
 }

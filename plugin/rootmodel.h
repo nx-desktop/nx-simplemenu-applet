@@ -64,7 +64,6 @@ class RootModel : public AppsModel
 
     Q_PROPERTY(QObject* appletInterface READ appletInterface WRITE setAppletInterface NOTIFY appletInterfaceChanged);
 
-    Q_PROPERTY(ApplicationsGroups* applicationsGroups READ applicationsGroups)
     Q_PROPERTY(GroupsModel* groupsModel READ groupsModel NOTIFY groupsModelChanged)
 
     public:
@@ -99,8 +98,6 @@ class RootModel : public AppsModel
 
         QObject* allAppsModel() const;
         GroupsModel *groupsModel();
-
-        ApplicationsGroups* applicationsGroups();
 
 Q_SIGNALS:
         void refreshed() const;
@@ -137,10 +134,8 @@ protected Q_SLOTS:
         RecentDocsModel *m_recentDocsModel;
         RecentContactsModel *m_recentContactsModel;
 
-        ApplicationsGroups m_applicationsGroupsCache;
         QObject *m_appletInterface;
         AppsModel * m_allAppsModel;
-//        AppsModel * m_groupsModel;
         GroupsModel m_groupsModel;
 };
 

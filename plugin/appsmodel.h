@@ -23,7 +23,6 @@
 
 #include "abstractmodel.h"
 #include "appentry.h"
-#include "applicationsgroups.h"
 
 #include <KServiceGroup>
 

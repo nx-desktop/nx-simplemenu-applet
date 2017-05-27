@@ -232,8 +232,6 @@ NomadMenu.SimpleMenuDialog {
 
                     model: searching ? runnerModel.modelForRow(index) : rootModel.modelForRow(0).modelForRow(index)
 
-                    onModelChanged: print(rootModel.modelForRow(0).description)
-
                     onCurrentIndexChanged: {
                         if (currentIndex != -1) {
                             pageListScrollArea.focus = true;

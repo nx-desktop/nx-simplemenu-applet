@@ -256,11 +256,6 @@ GroupsModel *RootModel::groupsModel()
     return &m_groupsModel;
 }
 
-ApplicationsGroups *RootModel::applicationsGroups()
-{
-    return &m_applicationsGroupsCache;
-}
-
 void RootModel::refresh()
 {
     if (!m_appletInterface) {
@@ -404,7 +399,6 @@ QList<AbstractEntry *> RootModel::groupEntries(QList<AbstractEntry *> entries)
 
 
     for (QString key : groups.keys()) {
-        qDebug() << "group key " << key;
         QList<AbstractEntry *> groupEntries = groups[key];
 
         QString groupName = m_groupsModel.groupName(key);

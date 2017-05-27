@@ -89,6 +89,7 @@ Item {
             id: groupTitle
             Layout.fillWidth: true
             placeholderText: i18n("Group title")
+            enabled: groupListView.currentGroup !== undefined
             text: groupListView.currentGroup !== undefined ?
                       groupListView.currentGroup.name : ""
             onTextChanged: {
@@ -105,6 +106,8 @@ Item {
             id: appsListViewScroll
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            enabled: groupListView.currentGroup !== undefined
 
             Rectangle {
                 anchors.fill: parent
@@ -247,7 +250,7 @@ Item {
             id: rawGroupJsonEdit
             Layout.fillWidth: true
             Layout.columnSpan: 2
-            visible: true
+            visible: false
         }
     }
 
