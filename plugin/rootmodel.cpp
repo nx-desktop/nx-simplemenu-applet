@@ -78,7 +78,10 @@ RootModel::RootModel(QObject *parent) : AppsModel(QString(), parent)
 , m_recentDocsModel(0)
 , m_recentContactsModel(0)
 , m_appletInterface(0)
+, m_allAppsModel(0)
+, m_groupsModel(0)
 {
+    connect(&m_groupsModel, &GroupsModel::jsonChanged, this, &RootModel::refresh);
 }
 
 RootModel::~RootModel()
@@ -243,38 +246,19 @@ AbstractModel* RootModel::systemFavoritesModel()
     return nullptr;
 }
 
-QString RootModel::rawRelations() const
+QObject *RootModel::allAppsModel() const
 {
-    return m_rawRelations;
+    return m_allAppsModel;
 }
 
-QString RootModel::rawGroupInfo() const
+GroupsModel *RootModel::groupsModel()
 {
-    return m_rawGroupInfo;
+    return &m_groupsModel;
 }
 
-void RootModel::setRawRelations(QString rawRelations)
+ApplicationsGroups *RootModel::applicationsGroups()
 {
-    if (m_rawRelations == rawRelations)
-        return;
-
-    m_rawRelations = rawRelations;
-    m_applicationsGroupsCache.setRawRelations(rawRelations);
-    emit rawRelationsChanged(rawRelations);
-
-    refresh();
-}
-
-void RootModel::setRawGroupInfo(QString rawGroupInfo)
-{
-    if (m_rawGroupInfo == rawGroupInfo)
-        return;
-
-    m_rawGroupInfo = rawGroupInfo;
-    m_applicationsGroupsCache.setRawGroupInfo(rawGroupInfo);
-    emit rawGroupInfoChanged(rawGroupInfo);
-
-    refresh();
+    return &m_applicationsGroupsCache;
 }
 
 void RootModel::refresh()
@@ -287,15 +271,12 @@ void RootModel::refresh()
 
     AppsModel::refreshInternal();
 
-    AppsModel *allModel = nullptr;
     m_recentAppsModel = nullptr;
     m_recentDocsModel = nullptr;
     m_recentContactsModel = nullptr;
 
     if (m_showAllSubtree) {
         QHash<QString, AbstractEntry *> appsHash;
-        QList<AbstractEntry *> apps;
-        QList<AbstractEntry *> pages;
 
         foreach (const AbstractEntry *groupEntry, m_entryList) {
             AbstractModel *model = groupEntry->childModel();
@@ -327,76 +308,34 @@ void RootModel::refresh()
             }
         }
 
-        apps = appsHash.values();
+        AppsModel *allModel = nullptr;
+        allModel = new AppsModel(appsHash.values(), false, this);
+        allModel->setDescription(QStringLiteral("KICKER_ALL_UNPAGED_MODEL")); // Intentionally no i18n.
 
-        // Apps stacking
-        QList<AbstractEntry *> groupedEntryList;
-        QHash<QString, QList<AbstractEntry *>> groups;
+        m_allAppsModel = allModel;
+        emit allAppsModelChanged(m_allAppsModel);
 
-        for (QString groupId : m_applicationsGroupsCache.groupIds())
-            groups.insert(groupId, QList<AbstractEntry *>());
+        QList<AbstractEntry *> pages = pageEntries(appsHash.values());
 
-        foreach(AbstractEntry *entry, apps) {
-            QString groupId = m_applicationsGroupsCache.applicationGroupId(entry->id());
-            if (!groupId.isEmpty() && groups.contains(groupId)) {
-                QList<AbstractEntry *> groupEntries = groups.value(groupId);
-                groupEntries.append(entry);
+        AppsModel *allPagedModel = nullptr;
+        allPagedModel = new AppsModel(pages, true, this);
+        allPagedModel->setDescription(QStringLiteral("KICKER_ALL_MODEL")); // Intentionally no i18n.
 
-                groups.insert(groupId, groupEntries);
-            } else
-                groupedEntryList.append(entry);
+        if (allPagedModel) {
+            m_entryList.prepend(new GroupEntry(this, i18n("All Applications"), QString(), allPagedModel));
         }
 
-        for (QString key : groups.keys()) {
-            if (groups[key].length() > 0) {
-                QList<AbstractEntry *> groupEntries = groups[key];
+        AppsModel *allGRoupedModel = nullptr;
+        QList<AbstractEntry *> groupedEntries = groupEntries(appsHash.values());
 
-                QString groupName = m_applicationsGroupsCache.groupNameById(key);
+        QList<AbstractEntry *> pagedGroupedEntries = pageEntries(groupedEntries);
 
-                AppsModel *model = new AppsModel(groupEntries, false, this);
-                GroupEntry * groupEntry = new GroupEntry(this, groupName, QString(""), model);
-                groupedEntryList.append(groupEntry);
-            }
+        allGRoupedModel = new AppsModel(pagedGroupedEntries, true, this);
+        allGRoupedModel->setDescription(QStringLiteral("KICKER_ALL_GROUPED_MODEL")); // Intentionally no i18n.
+
+        if (allGRoupedModel) {
+            m_entryList.prepend(new GroupEntry(this, i18n("All Applications"), QString(), allGRoupedModel));
         }
-        apps = groupedEntryList;
-
-        QCollator c;
-
-        std::sort(apps.begin(), apps.end(),
-            [&c](AbstractEntry* a, AbstractEntry* b) {
-//                if (a->type() != b->type()) {
-//                    return a->type() > b->type();
-//                } else {
-                    return c.compare(a->name(), b->name()) < 0;
-//                }
-            });
-
-
-        int at = 0;
-        QList<AbstractEntry *> page;
-
-        foreach(AbstractEntry *entry, apps) {
-            page.append(entry);
-
-            if (at == 23) {
-                at = 0;
-                AppsModel *model = new AppsModel(page, false, this);
-                pages.append(new GroupEntry(this, QString(), QString(), model));
-                page.clear();
-            } else {
-                ++at;
-            }
-        }
-
-        if (page.count()) {
-            AppsModel *model = new AppsModel(page, false, this);
-            pages.append(new GroupEntry(this, QString(), QString(), model));
-        }
-
-        pages.prepend(new GroupEntry(this, QString(), QString(), m_favorites));
-
-        allModel = new AppsModel(pages, true, this);
-        allModel->setDescription(QStringLiteral("KICKER_ALL_MODEL")); // Intentionally no i18n.
     }
 
     if (m_showSeparators) {
@@ -404,9 +343,6 @@ void RootModel::refresh()
         ++m_separatorCount;
     }
 
-    if (allModel) {
-        m_entryList.prepend(new GroupEntry(this, i18n("All Applications"), QString(), allModel));
-    }
 
 /*
     if (m_showRecentContacts) {
@@ -436,6 +372,101 @@ void RootModel::refresh()
     emit separatorCountChanged();
 
     emit refreshed();
+}
+
+QList<AbstractEntry *> RootModel::groupEntries(QList<AbstractEntry *> entries)
+{
+    m_groupsModel.setApps(entries);
+
+    QList<AbstractEntry *> groupsList;
+    QList<AbstractEntry *> groupedEntryList;
+    QHash<QString, QList<AbstractEntry *>> groups;
+
+    for (QString groupId : m_groupsModel.groupsIds())
+        groups.insert(groupId, QList<AbstractEntry *>());
+
+    for (AbstractEntry *entry : entries) {
+        QStringList groupsId = m_groupsModel.appGroups(entry->id());
+
+        bool grouped = false;
+        for (QString groupId : groupsId) {
+            if (!groupId.isEmpty() && groups.contains(groupId)) {
+                QList<AbstractEntry *> groupEntries = groups.value(groupId);
+                groupEntries.append(entry);
+
+                groups.insert(groupId, groupEntries);
+                grouped = true;
+            }
+        }
+        if (!grouped)
+            groupedEntryList.append(entry);
+    }
+
+
+    for (QString key : groups.keys()) {
+        qDebug() << "group key " << key;
+        QList<AbstractEntry *> groupEntries = groups[key];
+
+        QString groupName = m_groupsModel.groupName(key);
+
+        AppsModel *model = new AppsModel(groupEntries, false, this);
+        GroupEntry * groupEntry = new GroupEntry(this, groupName, QString(""), model);
+
+        groupsList.append(groupEntry);
+        if (groups[key].length() > 0) {
+            groupedEntryList.append(groupEntry);
+        }
+    }
+
+    sortEntries(groupedEntryList);
+
+    sortEntries(groupsList);
+
+    emit groupsModelChanged(&m_groupsModel);
+
+    return groupedEntryList;
+}
+
+QList<AbstractEntry *> RootModel::pageEntries(QList<AbstractEntry *> entries)
+{
+    sortEntries(entries);
+
+    QList<AbstractEntry *> pages;
+
+    int at = 0;
+    QList<AbstractEntry *> page;
+
+    foreach(AbstractEntry *entry, entries) {
+        page.append(entry);
+
+        if (at == 23) {
+            at = 0;
+            AppsModel *model = new AppsModel(page, false, this);
+            pages.append(new GroupEntry(this, QString(), QString(), model));
+            page.clear();
+        } else {
+            ++at;
+        }
+    }
+
+    if (page.count()) {
+        AppsModel *model = new AppsModel(page, false, this);
+        pages.append(new GroupEntry(this, QString(), QString(), model));
+    }
+
+    pages.prepend(new GroupEntry(this, QString(), QString(), m_favorites));
+
+    return pages;
+}
+
+void RootModel::sortEntries(QList<AbstractEntry *> &entries)
+{
+    QCollator c;
+
+    std::sort(entries.begin(), entries.end(),
+              [&c](AbstractEntry* a, AbstractEntry* b) {
+        return c.compare(a->name(), b->name()) < 0;
+    });
 }
 
 void RootModel::extendEntryList()

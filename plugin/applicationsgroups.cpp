@@ -24,6 +24,36 @@ int ApplicationsGroups::groupsCount()
     return m_groupsIds.length();
 }
 
+int ApplicationsGroups::newGroup(QString name)
+{
+    if (name.isEmpty()) {
+        return -1;
+    }
+
+    if (!m_groupIdGroupIndex.contains(name)) {
+        m_groupIdGroupIndex.insert(name, m_groupsNames.length());
+        m_groupsNames.append(name);
+    }
+
+    return m_groupIdGroupIndex.value(name);
+}
+
+bool ApplicationsGroups::removeGroup(int index)
+{
+    if (index < 0 || index >= m_groupsIds.length())
+        return false;
+
+    QString id = m_groupsIds.at(index);
+    m_groupIdGroupIndex.remove(id);
+
+    for (QString key : m_applicationIdGroupIndex.keys()) {
+        if (m_applicationIdGroupIndex.value(key) == index)
+            m_applicationIdGroupIndex.remove(key);
+    }
+
+    return true;
+}
+
 QString ApplicationsGroups::groupId(int index)
 {
     if (index >= 0 && index < m_groupsIds.length())
@@ -39,6 +69,16 @@ QString ApplicationsGroups::groupNameByIndex(int index)
     else
         return QString();
 
+}
+
+void ApplicationsGroups::setGroupName(int index, QString name)
+{
+    qDebug() << " setting new group name " << index << name;
+    if (index > -1 && index < m_groupsNames.length()) {
+        m_groupsNames.replace(index, name);
+    }
+
+    refreshRawData();
 }
 
 QString ApplicationsGroups::groupNameById(QString id)
@@ -74,6 +114,32 @@ QStringList ApplicationsGroups::groupApplications(QString groupId)
     }
 
     return applicationsIds;
+}
+
+bool ApplicationsGroups::addApplicationToGroup(QString applicationId, QString groupId)
+{
+    int groupIndex = m_groupsIds.indexOf(groupId);
+    if (groupIndex != -1) {
+        m_applicationIdGroupIndex.insert(applicationId, groupIndex);
+        return true;
+    }
+
+    qWarning() << "Attempting to put " << applicationId
+               << " into a non-existent group " << groupId;
+    return false;
+}
+
+bool ApplicationsGroups::removeApplicationFromGroup(QString applicationId, QString groupId)
+{
+    int groupIndex = m_groupsIds.indexOf(groupId);
+    if (groupIndex != -1) {
+        m_applicationIdGroupIndex.remove(applicationId);
+        return true;
+    }
+
+    qWarning() << "Attempting to remove " << applicationId
+               << " from a non-existent group " << groupId;
+    return false;
 }
 
 QString ApplicationsGroups::rawRelations() const
@@ -118,7 +184,7 @@ void ApplicationsGroups::refreshCache()
     parseRawGroupInfo();
     qDebug() << "Parsed groups " << m_groupsIds;
 
-    parseRelations();
+    parseRawRelations();
     qDebug() << "Parsed relation " << m_applicationIdGroupIndex.keys();
 }
 
@@ -153,7 +219,7 @@ bool ApplicationsGroups::parseRawGroupInfo()
     return true;
 }
 
-bool ApplicationsGroups::parseRelations()
+bool ApplicationsGroups::parseRawRelations()
 {
     QJsonParseError error;
     QJsonDocument relationsDocument = QJsonDocument::fromJson(m_rawRelations.toUtf8(), &error);
@@ -180,5 +246,34 @@ bool ApplicationsGroups::parseRelations()
         return false;
     }
     return true;
+}
+
+void ApplicationsGroups::refreshRawData()
+{
+    QJsonObject groupsRoot;
+    for (int i = 0; i < m_groupsIds.length(); i ++ ) {
+        QJsonObject group;
+        group.insert("display", m_groupsNames.at(i));
+        group.insert("id", m_groupsIds.at(i));
+
+        groupsRoot.insert(m_groupsIds.at(i), group);
+    }
+
+    QJsonDocument groupsDocument(groupsRoot);
+    m_rawGroupInfo = groupsDocument.toJson();
+
+
+    QJsonObject relations;
+    for (QString applicationId : m_applicationIdGroupIndex.keys()) {
+        int groupIndex = m_applicationIdGroupIndex.value(applicationId);
+        QString groupId = m_groupsIds.at(groupIndex);
+        relations.insert(applicationId, groupId);
+    }
+
+    QJsonDocument relationsDocument(relations);
+    m_rawRelations = relationsDocument.toJson();
+
+    emit(rawGroupInfoChanged(m_rawGroupInfo));
+    emit(rawRelationsChanged(m_rawRelations));
 }
 

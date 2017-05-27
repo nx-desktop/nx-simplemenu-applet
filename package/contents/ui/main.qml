@@ -73,13 +73,12 @@ Item {
         showSeparators: false
         appletInterface: plasmoid
 
-        rawGroupInfo : plasmoid.configuration.groupsData
-        rawRelations : plasmoid.configuration.relations
+        groupsModel.json: plasmoid.configuration.groupsJson
 
-         showAllSubtree: true
-//        showRecentApps: plasmoid.configuration.showRecentApps
-//        showRecentDocs: plasmoid.configuration.showRecentDocs
-//        showRecentContacts: plasmoid.configuration.showRecentContacts
+        showAllSubtree: true
+        //        showRecentApps: plasmoid.configuration.showRecentApps
+        //        showRecentDocs: plasmoid.configuration.showRecentDocs
+        //        showRecentContacts: plasmoid.configuration.showRecentContacts
 
         onShowRecentAppsChanged: {
             plasmoid.configuration.showRecentApps = showRecentApps;
@@ -92,6 +91,7 @@ Item {
         onShowRecentContactsChanged: {
             plasmoid.configuration.showRecentContacts = showRecentContacts;
         }
+
 
         Component.onCompleted: {
             favoritesModel.favorites = plasmoid.configuration.favoriteApps;

@@ -17,6 +17,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  ***************************************************************************/
 
+#include "groupsmodel.h"
 #include "applicationsgroups.h"
 #include "simplemenuplugin.h"
 #include "abstractmodel.h"
@@ -31,15 +32,6 @@
 
 #include <QtQml>
 
-
-
-static QObject *applicationsgroups_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-
-    return new ApplicationsGroups();
-}
 
 void SimpleMenuPlugin::registerTypes(const char *uri)
 {
@@ -56,5 +48,6 @@ void SimpleMenuPlugin::registerTypes(const char *uri)
     qmlRegisterType<WheelInterceptor>(uri, 0, 1, "WheelInterceptor");
     qmlRegisterType<WindowSystem>(uri, 0, 1, "WindowSystem");
 
-    qmlRegisterSingletonType<ApplicationsGroups>(uri, 0, 1, "ApplicationsGroups", applicationsgroups_singletontype_provider);
+    qmlRegisterType<ApplicationsGroups>();
+    qmlRegisterType<GroupsModel>();
 }

@@ -21,12 +21,17 @@ public:
     Q_INVOKABLE QString getApplicationGroupId(QString applicationId);
 
     Q_INVOKABLE int groupsCount();
+    Q_INVOKABLE int newGroup(QString name);
+    Q_INVOKABLE bool removeGroup(int index);
     Q_INVOKABLE QString groupId(int index);
     Q_INVOKABLE QString groupNameByIndex(int index);
+    Q_INVOKABLE void setGroupName(int index, QString name);
     Q_INVOKABLE QString groupNameById(QString id);
     Q_INVOKABLE QString applicationGroupId(QString applicationId);
     Q_INVOKABLE QStringList groupIds();
     Q_INVOKABLE QStringList groupApplications(QString groupId);
+    Q_INVOKABLE bool addApplicationToGroup(QString applicationId, QString groupId);
+    Q_INVOKABLE bool removeApplicationFromGroup(QString applicationId, QString groupId);
 
 
     QString rawRelations() const;
@@ -43,7 +48,9 @@ Q_SIGNALS:
 private:
     void refreshCache();
     bool parseRawGroupInfo();
-    bool parseRelations();
+    bool parseRawRelations();
+
+    void refreshRawData();
 
     QString m_rawRelations;
     QString m_rawGroupInfo;

@@ -2,153 +2,35 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
+import QtQml.Models 2.1
 
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.plasma.plasmoid 2.0
 
-import org.nomad.private.menu 1.0 ;
+import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
 
 import '../code/tools.js' as Tools
 
 Item {
-    property alias cfg_groupsData: rawGroupDataEdit.text;
-    property alias cfg_relations: rawRelationsEdit.text;
+    property alias cfg_groupsJson: rawGroupJsonEdit.text;
 
-    property var groupsDataJSON : plasmoid.configuration.groupsData
-    property var relationsJSON : plasmoid.configuration.relations
+    NomadMenu.RootModel {
+        id: rootModel
+        groupsModel.json: cfg_groupsJson
 
-    //    property var groupList: []
-    //    property var apps: []
+        appNameFormat: plasmoid.configuration.appNameFormat
+        flat: true
+        showSeparators: false
+        appletInterface: plasmoid
 
-    Component.onCompleted: {
-        loadGroupList()
+        showAllSubtree: true
     }
 
-    function loadGroupList() {
-        var groupsData = JSON.parse(groupsDataJSON)
-        groupList.clear()
-        for (var k in groupsData) {
-            var group = groupsData[k]
-            groupList.append(group)
-        }
-    }
-
-    function saveGroupList() {
-        var newGroupsData = {}
-        for (var i = 0; i < groupList.count; i++) {
-            var group = groupList.get(i)
-            newGroupsData[group.id] = group;
-        }
-
-        rawGroupDataEdit.text = JSON.stringify(newGroupsData)
-    }
-
-
-    ListModel {
-        id: groupList
-
-        function addGroup() {
-            var newGroup = {
-                id: Tools.randomId(),
-                display: i18n("New group")
-            }
-
-            append(newGroup)
-
-            groupListView.model = groupList
-
-            saveGroupList()
-        }
-
-        function eraseGroup(index) {
-            remove(index)
-
-            groupListView.currentIndex = -1
-            groupListView.model = groupList
-
-            saveGroupList()
-        }
-    }
-
-    ListModel {
-        id: apps
-        property var groupId: groupListView.currentIndex != -1 ? groupList.get(groupListView.currentIndex).id : "";
-        onGroupIdChanged: loadApps()
-
-        function loadApps() {
-            var relations = []
-            if (rawRelationsEdit.text == "")
-                relations = JSON.parse(relationsJSON);
-            else
-                relations = JSON.parse(rawRelationsEdit.text);
-
-            apps.clear()
-            for (var i = 0; i < launchers.rowCount(); i ++) {
-                var index = launchers.index(i, 0);
-                if (relations[launchers.data(index, Qt.UserRole)] === groupId) {
-                    var item = {
-                        display: launchers.data(index, Qt.DisplayRole),
-                        decoration: launchers.data(index, Qt.DecorationRole),
-                        tooltTip: launchers.data(index, Qt.ToolTipRole),
-                        id: launchers.data(index, Qt.UserRole)
-                    }
-                    apps.append(item)
-                }
-            }
-        }
-
-        function saveApps() {
-            var relations = JSON.parse(rawRelationsEdit.text);
-            var newRelations = {};
-            for (var i = 0; i < apps.count; i ++) {
-                var app = apps.get(i)
-                newRelations[app.id] = groupId;
-            }
-
-            for (var appId in relations) {
-                if (relations[appId] !== groupId)
-                    newRelations[appId] = relations[appId]
-            }
-
-            rawRelationsEdit.text = JSON.stringify(newRelations);
-        }
-
-        function addApplication(app) {
-            apps.append(app)
-
-            saveApps()
-            loadApps()
-        }
-        function removeApp(index) {
-            remove(index)
-
-            saveApps()
-        }
-    }
-
-    Launchers {
-        id: launchers
-
-        property var apps: []
-        onModelReset: listApps()
-
-
-        function listApps() {
-            var newApps = [];
-            for (var i = 0; i < launchers.rowCount(); i ++) {
-                var index = launchers.index(i, 0);
-                var item = {
-                    display: launchers.data(index, Qt.DisplayRole),
-                    decoration: launchers.data(index, Qt.DecorationRole),
-                    tooltTip: launchers.data(index, Qt.ToolTipRole),
-                    id: launchers.data(index, Qt.UserRole)
-                }
-                newApps.push(item);
-            }
-            launchers.apps = newApps
-        }
+    Connections {
+        target: rootModel.groupsModel
+        onJsonChanged: cfg_groupsJson = rootModel.groupsModel.json
     }
 
     GridLayout {
@@ -173,21 +55,10 @@ Item {
                 id: groupListView
                 anchors.fill: parent
 
-                model: groupList
-                delegate: PlasmaComponents.ListItem {
-                    height: 40
-                    Label {
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: 12
-                        text: display
-                    }
+                property var currentGroup: rootModel.groupsModel.get(currentIndex);
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked:  groupListView.currentIndex = index;
-                    }
-                }
+                model: rootModel.groupsModel
+                delegate: listItemDelegate
 
                 highlightFollowsCurrentItem: true
                 highlight: Rectangle {
@@ -202,12 +73,12 @@ Item {
                     }
                     PlasmaComponents.ToolButton {
                         iconName: "list-remove-symbolic"
-                        onClicked: groupList.eraseGroup(groupListView.currentIndex)
+                        onClicked: rootModel.groupsModel.removeGroup(groupListView.currentGroup.id)
                     }
 
                     PlasmaComponents.ToolButton {
                         iconName: "list-add-symbolic"
-                        onClicked: groupList.addGroup()
+                        onClicked: rootModel.groupsModel.newGroup(Tools.randomId());
                     }
 
                 }
@@ -218,11 +89,14 @@ Item {
             id: groupTitle
             Layout.fillWidth: true
             placeholderText: i18n("Group title")
-            text: groupListView.currentIndex != -1 ? groupList.get(groupListView.currentIndex).display : ""
+            text: groupListView.currentGroup !== undefined ?
+                      groupListView.currentGroup.name : ""
             onTextChanged: {
-                if (groupListView.currentIndex != -1 ) {
-                    groupList.get(groupListView.currentIndex).display = text
-                    saveGroupList()
+                if (groupListView.currentIndex > -1 ) {
+                    var index = groupListView.model.index(groupListView.currentIndex, 0)
+
+                    rootModel.groupsModel.setData(index, text, Qt.DisplayRole)
+                    groupListView.model = rootModel.groupsModel
                 }
             }
         }
@@ -251,7 +125,7 @@ Item {
                         anchors.fill: parent
                         ListView {
                             id: newAppPopupListView
-                            model: launchers
+                            model: rootModel.allAppsModel
 
                             highlightFollowsCurrentItem: true
                             highlight: Rectangle {
@@ -269,13 +143,13 @@ Item {
                                         Layout.minimumWidth: 32
                                         Layout.maximumWidth: Layout.minimumWidth
 
-                                        source: icon
+                                        source: decoration
                                     }
 
                                     PlasmaComponents.Label {
                                         Layout.fillHeight: true
                                         Layout.fillWidth: true
-                                        text: name
+                                        text: display
                                     }
 
                                     MouseArea {
@@ -288,14 +162,10 @@ Item {
                                             }
                                         }
                                         onClicked: {
-                                            var app = {
-                                                id: model.id,
-                                                display: model.name,
-                                                decoration: model.icon
-                                            }
-
-                                            apps.addApplication(app)
                                             newAppPopup.close()
+
+                                            rootModel.groupsModel.addAppToGroup(groupListView.currentGroup.id,  model.favoriteId)
+                                            appsListView.model = rootModel.groupsModel.groupApps(groupListView.currentGroup.id)
                                         }
                                     }
                                 }
@@ -307,9 +177,13 @@ Item {
             ListView {
                 id: appsListView
                 anchors.fill: parent
+                property var currentAppId;
 
-                model: apps
-                delegate: PlasmaComponents.ListItem {
+                model: groupListView.currentGroup !== undefined ?
+                           rootModel.groupsModel.groupApps(groupListView.currentGroup.id) : 0
+
+                delegate:         PlasmaComponents.ListItem {
+                    id: listItemRoot
                     height: 40
                     RowLayout {
                         anchors.fill: parent
@@ -319,6 +193,7 @@ Item {
                             Layout.maximumWidth: Layout.minimumWidth
 
                             source: decoration
+                            visible: valid
                         }
 
                         PlasmaComponents.Label {
@@ -329,7 +204,10 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: appsListView.currentIndex = index
+                            onClicked: {
+                                listItemRoot.ListView.view.currentIndex = index
+                                listItemRoot.ListView.view.currentAppId = model.favoriteId;
+                            }
                         }
                     }
                 }
@@ -347,7 +225,13 @@ Item {
                     }
                     PlasmaComponents.ToolButton {
                         iconName: "list-remove-symbolic"
-                        onClicked: apps.removeApp(appsListView.currentIndex)
+                        onClicked: {
+                            var index = appsListView.model.index(appsListView.currentIndex, 0)
+                            var currentAppId = appsListView.model.data(index, appsListView.model.favoriteId);
+
+                            rootModel.groupsModel.removeAppFromGroup(groupListView.currentGroup.id, appsListView.currentAppId)
+                            appsListView.model = rootModel.groupsModel.groupApps(groupListView.currentGroup.id)
+                        }
                     }
 
                     PlasmaComponents.ToolButton {
@@ -360,14 +244,41 @@ Item {
         }
 
         TextField {
-            id: rawGroupDataEdit
-            visible: false
-        }
-
-        TextField {
-            id: rawRelationsEdit
-            visible: false
+            id: rawGroupJsonEdit
             Layout.fillWidth: true
+            Layout.columnSpan: 2
+            visible: true
+        }
+    }
+
+    Component {
+        id: listItemDelegate
+
+        PlasmaComponents.ListItem {
+            id: listItemRoot
+            height: 40
+            RowLayout {
+                anchors.fill: parent
+                PlasmaCore.IconItem {
+                    Layout.fillHeight: true
+                    Layout.minimumWidth: 32
+                    Layout.maximumWidth: Layout.minimumWidth
+
+                    source: decoration
+                    visible: valid
+                }
+
+                PlasmaComponents.Label {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    text: display
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: listItemRoot.ListView.view.currentIndex = index
+                }
+            }
         }
     }
 }

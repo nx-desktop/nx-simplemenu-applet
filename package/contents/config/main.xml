@@ -52,12 +52,8 @@
     </entry>
   </group>
   <group name="Groups">
-  <entry name="groupsData" type="String">
-    <default>{"g1":{"display":"Internet", "id":"g1"},"g2":{"display":"Development", "id":"g2"}}</default>
+  <entry name="groupsJson" type="String">
   </entry>
-  <entry name="relations" type="String">
-    <default>{"kde4-kopete.desktop": "g1", "netbeans-8.2.desktop": "g2", "vim.desktop": "g2", "assistant-qt5.desktop": "g2", "vmware-player.desktop": "g2", "thunderbird.desktop": "g1", "iceweasel.desktop":"g1", "pidgin.desktop": "g1", "icedove.desktop": "g1", "firefox-esr.desktop": "g1"}</default>
-  </entry>
-
+  <default>[]</default>
   </group>
 </kcfg>

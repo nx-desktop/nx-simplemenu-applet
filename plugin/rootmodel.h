@@ -20,6 +20,7 @@
 #ifndef ROOTMODEL_H
 #define ROOTMODEL_H
 
+#include "groupsmodel.h"
 #include "appsmodel.h"
 
 class FavoritesModel;
@@ -53,6 +54,8 @@ class RootModel : public AppsModel
     Q_OBJECT
 
     Q_PROPERTY(QObject* systemFavoritesModel READ systemFavoritesModel NOTIFY systemFavoritesModelChanged)
+    Q_PROPERTY(QObject* allAppsModel READ allAppsModel NOTIFY allAppsModelChanged)
+    Q_PROPERTY(QObject* groupsModel READ groupsModel NOTIFY groupsModelChanged)
 
     Q_PROPERTY(bool showAllSubtree READ showAllSubtree WRITE setShowAllSubtree NOTIFY showAllSubtreeChanged)
     Q_PROPERTY(bool showRecentApps READ showRecentApps WRITE setShowRecentApps NOTIFY showRecentAppsChanged)
@@ -61,8 +64,8 @@ class RootModel : public AppsModel
 
     Q_PROPERTY(QObject* appletInterface READ appletInterface WRITE setAppletInterface NOTIFY appletInterfaceChanged);
 
-    Q_PROPERTY(QString rawRelations READ rawRelations WRITE setRawRelations NOTIFY rawRelationsChanged)
-    Q_PROPERTY(QString rawGroupInfo READ rawGroupInfo WRITE setRawGroupInfo NOTIFY rawGroupInfoChanged)
+    Q_PROPERTY(ApplicationsGroups* applicationsGroups READ applicationsGroups)
+    Q_PROPERTY(GroupsModel* groupsModel READ groupsModel NOTIFY groupsModelChanged)
 
     public:
         explicit RootModel(QObject *parent = 0);
@@ -94,9 +97,10 @@ class RootModel : public AppsModel
 
         QString rawGroupInfo() const;
 
-public Q_SLOTS:
-        void setRawRelations(QString rawRelations);
-        void setRawGroupInfo(QString rawGroupInfo);
+        QObject* allAppsModel() const;
+        GroupsModel *groupsModel();
+
+        ApplicationsGroups* applicationsGroups();
 
 Q_SIGNALS:
         void refreshed() const;
@@ -108,13 +112,17 @@ Q_SIGNALS:
         void recentAppsModelChanged() const;
         void appletInterfaceChanged() const;
 
-        void rawRelationsChanged(QString rawRelations);
-        void rawGroupInfoChanged(QString rawGroupInfo);
+        void allAppsModelChanged(QObject* allAppsModel);
+        void groupsModelChanged(QObject* groupsModel);
 
 protected Q_SLOTS:
         void refresh();
 
     private:
+        QList<AbstractEntry *> groupEntries(QList<AbstractEntry *> entries);
+        QList<AbstractEntry *> pageEntries(QList<AbstractEntry *> entries);
+        void sortEntries(QList<AbstractEntry *> &entries);
+
         void extendEntryList();
 
         FavoritesModel *m_favorites;
@@ -131,8 +139,9 @@ protected Q_SLOTS:
 
         ApplicationsGroups m_applicationsGroupsCache;
         QObject *m_appletInterface;
-        QString m_rawRelations;
-        QString m_rawGroupInfo;
+        AppsModel * m_allAppsModel;
+//        AppsModel * m_groupsModel;
+        GroupsModel m_groupsModel;
 };
 
 #endif
