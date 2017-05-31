@@ -72,12 +72,12 @@ Item {
                         right: parent.right
                     }
                     PlasmaComponents.ToolButton {
-                        iconName: "list-remove-symbolic"
+                        iconName: "list-remove"
                         onClicked: rootModel.groupsModel.removeGroup(groupListView.currentGroup.id)
                     }
 
                     PlasmaComponents.ToolButton {
-                        iconName: "list-add-symbolic"
+                        iconName: "list-add"
                         onClicked: rootModel.groupsModel.newGroup(Tools.randomId());
                     }
 
@@ -227,7 +227,7 @@ Item {
                         right: parent.right
                     }
                     PlasmaComponents.ToolButton {
-                        iconName: "list-remove-symbolic"
+                        iconName: "list-remove"
                         onClicked: {
                             var index = appsListView.model.index(appsListView.currentIndex, 0)
                             var currentAppId = appsListView.model.data(index, appsListView.model.favoriteId);
@@ -238,7 +238,7 @@ Item {
                     }
 
                     PlasmaComponents.ToolButton {
-                        iconName: "list-add-symbolic"
+                        iconName: "list-add"
 
                         onClicked: newAppPopup.open()
                     }
