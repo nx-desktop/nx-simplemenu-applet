@@ -124,14 +124,11 @@ MouseArea {
             visible: !isGroup
         }
 
-        Rectangle {
+        PlasmaCore.FrameSvgItem  {
             anchors.fill: parent
             visible: icon_simple.visible == false
 
-            color: "darkgray"
-            border.color: "gray"
-            border.width: 1
-            radius: 5
+            imagePath: "opaque/dialogs/background"
 
             Flow {
                 anchors.fill: parent

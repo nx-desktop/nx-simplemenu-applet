@@ -43,12 +43,10 @@ Item {
             Layout.minimumWidth: 200
             Layout.fillHeight: true
 
-            Rectangle {
+            PlasmaCore.FrameSvgItem {
                 anchors.fill: parent
-                color: "white"
 
-                border.color: "lightgray"
-                border.width: 1
+                imagePath: "opaque/widgets/panel-background"
             }
 
             ListView {
@@ -61,9 +59,7 @@ Item {
                 delegate: listItemDelegate
 
                 highlightFollowsCurrentItem: true
-                highlight: Rectangle {
-                    color: "lightblue"
-                    opacity: 0.3
+                highlight: PlasmaComponents.Highlight {
                 }
 
                 RowLayout {
@@ -85,7 +81,7 @@ Item {
             }
         }
 
-        TextField {
+        PlasmaComponents.TextField {
             id: groupTitle
             Layout.fillWidth: true
             placeholderText: i18n("Group title")
@@ -109,12 +105,10 @@ Item {
 
             enabled: groupListView.currentGroup !== undefined
 
-            Rectangle {
+            PlasmaCore.FrameSvgItem {
                 anchors.fill: parent
-                color: "white"
 
-                border.color: "lightgray"
-                border.width: 1
+                imagePath: "opaque/widgets/panel-background"
 
                 Popup {
                     id: newAppPopup
@@ -124,6 +118,11 @@ Item {
                     focus: true
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
+                    background: PlasmaCore.FrameSvgItem {
+                        anchors.fill: parent
+                        imagePath: "opaque/dialogs/background"
+                    }
+
                     PlasmaExtras.ScrollArea {
                         anchors.fill: parent
                         ListView {
@@ -131,9 +130,7 @@ Item {
                             model: rootModel.allAppsModel
 
                             highlightFollowsCurrentItem: true
-                            highlight: Rectangle {
-                                color: "lightblue"
-                                opacity: 0.3
+                            highlight: PlasmaComponents.Highlight {
                             }
 
                             delegate: PlasmaComponents.ListItem {
@@ -216,9 +213,7 @@ Item {
                 }
 
                 highlightFollowsCurrentItem: true
-                highlight: Rectangle {
-                    color: "lightblue"
-                    opacity: 0.3
+                highlight: PlasmaComponents.Highlight {
                 }
 
                 RowLayout {
@@ -246,7 +241,7 @@ Item {
             }
         }
 
-        TextField {
+        PlasmaComponents.TextField {
             id: rawGroupJsonEdit
             Layout.fillWidth: true
             Layout.columnSpan: 2

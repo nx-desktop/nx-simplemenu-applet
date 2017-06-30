@@ -53,7 +53,11 @@ Popup {
         preventStealing: true
     }
     
-    background: Rectangle { color: "lightblue" }
+    background: PlasmaCore.FrameSvgItem {
+        anchors.fill: parent
+        imagePath: "opaque/dialogs/background"
+    }
+
     ItemGridView {
         id: groupGridView
 
