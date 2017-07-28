@@ -1,3 +1,9 @@
+plasma-widget-nomad-simplemenu (1.3-3) nxosD; urgency=medium
+
+  * Fix items highlight.
+
+ -- Alexis López Zubieta <azubieta90@gmail.com>  Fri, 28 Jul 2017 15:19:27 -0500
+
 plasma-widget-nomad-simplemenu (1.3-2) nxos; urgency=medium
 
   * Improve visual coherence.
