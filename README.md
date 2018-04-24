@@ -5,23 +5,23 @@ This is the repository for the paged start menu for Nomad Destkop supports scrol
 ![](https://i.imgur.com/JiHUCwx.png)
 
 # Requirements
-- QtQuick
-- QtQuickWidgets
-- DBus
-- QtWidgets
-- X11Extras
-- Plasma
-- PlasmaQuick
-- I18n
-- Notifications
-- Runner
-- Declarative
-- Solid
+- QtQuick.
+- QtQuickWidgets.
+- DBus.
+- QtWidgets.
+- X11Extras.
+- Plasma.
+- PlasmaQuick.
+- I18n.
+- Notifications.
+- Runner.
+- Declarative.
+- Solid.
 - WindowSystem
-- DBusAddons
-- People
-- KIO
-- KDELibs4Support
+- DBusAddons.
+- People.
+- KIO.
+- KDELibs4Support.
 
 # Issues
 If you find problems with the contents of this repository please create an issue.
