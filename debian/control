@@ -1,13 +1,13 @@
-Source: plasma-widget-nomad-simplemenu
+Source: nomad-simplemenu-applet
 Section: unknown
 Priority: optional
 Maintainer: Alexis Lopez Zubieta <azubieta90@gmail.com>
 Build-Depends: debhelper (>=9), cmake (>= 2.8), extra-cmake-modules,kio-dev,libkf5activities-dev,libkf5dbusaddons-dev,libkf5declarative-dev,libkf5i18n-dev,libkf5kdelibs4support-dev,libkf5notifications-dev,libkf5people-dev,libkf5runner-dev,libkf5solid-dev,libkf5windowsystem-dev,libqt5x11extras5-dev,plasma-framework-dev,plasma-workspace-dev,qtbase5-dev,qtdeclarative5-dev
 Standards-Version: 3.9.6
-Homepage: https://github.com/nomad-shell/nomad-simplemenu
-Vcs-Git: https://github.com/nomad-shell/nomad-simplemenu.git
+Homepage: https://github.com/nomad-desktop/nomad-simplemenu-applet
+Vcs-Git: https://github.com/nomad-desktop/nomad-simplemenu-applet.git
 
-Package: plasma-widget-nomad-simplemenu
+Package: nomad-simplemenu-applet
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Simple menu widget for plasma panel

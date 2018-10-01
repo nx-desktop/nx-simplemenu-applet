@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: plasma-widget-nomad-simplemenu
-Source: https://github.com/nomad-shell/nomad-simplemenu.git
+Upstream-Name: nomad-simplemenu-applet
+Source: https://github.com/nomad-desktop/nomad-simplemenu-applet.git
 
 Copyright: 2017 Alexis Lopez Zubieta <azubieta90@gmail.com>
 License: GPL-2+
