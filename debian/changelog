@@ -1,3 +1,9 @@
+nomad-simplemenu-applet (1.3.4) nxos; urgency=medium
+
+  * Create new branch.
+
+ -- Uri Herrera <uri_herrera@nxos.org>  Fri, 29 Nov 2018 15:46:00 -0500
+
 nomad-simplemenu-applet (1.3.3) nxos; urgency=medium
 
   * Bump version.
