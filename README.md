@@ -1,4 +1,4 @@
-# Nomad Simplemenu [![Build Status](https://travis-ci.org/nomad-desktop/nomad-simplemenu.svg?branch=master)](https://travis-ci.org/nomad-desktop/nomad-simplemenu)
+# NX Simplemenu [![Build Status](https://travis-ci.org/nx-desktop/nx-simplemenu.svg?branch=master)](https://travis-ci.org/nx-desktop/nx-simplemenu)
 
 This is the repository for the paged start menu for Nomad Destkop supports scrolling and folder creation. It's based on the maui-simple-menu project.
 
