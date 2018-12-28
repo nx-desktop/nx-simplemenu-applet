@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: nomad-simplemenu-applet
-Source: https://github.com/nomad-desktop/nomad-simplemenu-applet.git
+Upstream-Name: nx-simplemenu-applet
+Source: https://github.com/nx-desktop/nx-simplemenu-applet.git
 
 Copyright: 2017 Alexis Lopez Zubieta <azubieta90@gmail.com>
 License: GPL-2+

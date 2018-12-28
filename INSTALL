@@ -4,7 +4,7 @@
 - Plasma Framework >= 5.19
 
 # Prepare your build directory and get into it
-cd /path/to/nomad-simplemenu/
+cd /path/to/nx-simplemenu/
 mkdir build
 cd build
 
