@@ -11,4 +11,4 @@ Package: nx-simplemenu-applet
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Simple menu widget for plasma panel
- Minimalistic menu for plasma panel, it is the default menu on nomad desktop.
+ Minimalistic menu for plasma panel, it is the default menu on nx desktop.
