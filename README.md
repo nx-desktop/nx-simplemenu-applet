@@ -1,4 +1,4 @@
-# NX Simplemenu [![Build Status](https://travis-ci.org/nx-desktop/nx-simplemenu.svg?branch=master)](https://travis-ci.org/nx-desktop/nx-simplemenu)
+# NX Simplemenu [![Build Status](https://travis-ci.org/nx-desktop/nx-simplemenu-applet.svg?branch=master)](https://travis-ci.org/nx-desktop/nx-simplemenu-applet)
 
 This is the repository for the paged start menu for Nx Destkop supports scrolling and folder creation. It's based on the maui-simple-menu project.
 
@@ -27,4 +27,4 @@ This is the repository for the paged start menu for Nx Destkop supports scrollin
 # Issues
 If you find problems with the contents of this repository please create an issue.
 
-©2018 Nitrux Latinoamericana S.C.
+©2019 Nitrux Latinoamericana S.C.
