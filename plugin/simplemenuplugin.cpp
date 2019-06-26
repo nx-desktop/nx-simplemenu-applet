@@ -34,7 +34,7 @@
 
 void SimpleMenuPlugin::registerTypes(const char *uri)
 {
-    Q_ASSERT(uri == QLatin1String("org.kde.plasma.private.nomadmenu"));
+    Q_ASSERT(uri == QLatin1String("org.kde.plasma.private.nxmenu"));
 
     qmlRegisterType<AbstractModel>();
 

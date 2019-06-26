@@ -24,7 +24,7 @@ import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 
-import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
+import org.kde.plasma.private.nxmenu 0.1 as NXMenu
 
 Item {
     id: kicker
@@ -65,7 +65,7 @@ Item {
         MenuRepresentation {}
     }
 
-    NomadMenu.RootModel {
+    NXMenu.RootModel {
         id: rootModel
 
         appNameFormat: plasmoid.configuration.appNameFormat
@@ -127,7 +127,7 @@ Item {
         }
     }
 
-    NomadMenu.RunnerModel {
+    NXMenu.RunnerModel {
         id: runnerModel
 
         favoritesModel: globalFavorites
@@ -136,11 +136,11 @@ Item {
         deleteWhenEmpty: false
     }
 
-    NomadMenu.DragHelper {
+    NXMenu.DragHelper {
         id: dragHelper
     }
 
-    NomadMenu.ProcessRunner {
+    NXMenu.ProcessRunner {
         id: processRunner;
     }
 

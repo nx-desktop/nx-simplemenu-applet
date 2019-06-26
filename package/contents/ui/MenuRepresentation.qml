@@ -23,9 +23,9 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
-import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
+import org.kde.plasma.private.nxmenu 0.1 as NXMenu
 
-NomadMenu.SimpleMenuDialog {
+NXMenu.SimpleMenuDialog {
     id: root
 
     objectName: "popupWindow"
@@ -274,7 +274,7 @@ NomadMenu.SimpleMenuDialog {
                         }
                     }
 
-                    NomadMenu.WheelInterceptor {
+                    NXMenu.WheelInterceptor {
                         anchors.fill: parent
                         z: 1
 

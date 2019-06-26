@@ -1,3 +1,9 @@
+nx-simplemenu-applet (1.4.2) nxos; urgency=medium
+
+  * Bump version.
+
+ -- Uri Herrera <uri_herrera@nxos.org>  Tue, 25 Jun 2019 19:08:00 -0500
+
 nx-simplemenu-applet (1.4.1) nxos; urgency=medium
 
   * Bump version.

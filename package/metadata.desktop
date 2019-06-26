@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Nx Menu
-Comment=A launcher menu for Nx Desktop
+Name=NX Menu
+Comment=A launcher menu for NX Desktop
 
 Type=Service
 Icon=start-here-kde
@@ -12,7 +12,7 @@ X-Plasma-Provides=org.kde.plasma.launchermenu
 
 X-KDE-PluginInfo-Author=Alexis López Zubieta
 X-KDE-PluginInfo-Email=azubieta90@gmail.com
-X-KDE-PluginInfo-Name=org.kde.plasma.nomadmenu
+X-KDE-PluginInfo-Name=org.kde.plasma.nxmenu
 X-KDE-PluginInfo-Version=1.0
 X-KDE-PluginInfo-Category=Application Launchers
 X-KDE-PluginInfo-Depends=

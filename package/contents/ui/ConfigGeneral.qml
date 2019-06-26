@@ -22,7 +22,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.0
 
-import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
+import org.kde.plasma.private.nxmenu 0.1 as NXMenu
 
 Item {
     id: configGeneral
@@ -86,7 +86,7 @@ Item {
                     }
                 }
 
-                NomadMenu.SystemSettings {
+                NXMenu.SystemSettings {
                     id: systemSettings
                 }
             }

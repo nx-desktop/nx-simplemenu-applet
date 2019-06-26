@@ -1,4 +1,4 @@
-project(nomadmenu)
+project(nxmenu)
 set(PROJECT_VERSION "1.0")
 set(PROJECT_VERSION_MAJOR 1)
 
@@ -77,14 +77,14 @@ add_definitions(
   -DQT_NO_CAST_FROM_BYTEARRAY
   -DQT_NO_SIGNALS_SLOTS_KEYWORDS
   -DQT_USE_FAST_OPERATOR_PLUS
-  -DTRANSLATION_DOMAIN=\"plasma_applet_org.kde.plasma.nomadmenu\"
+  -DTRANSLATION_DOMAIN=\"plasma_applet_org.kde.plasma.nxmenu\"
 )
 
-plasma_install_package(package org.kde.plasma.nomadmenu)
+plasma_install_package(package org.kde.plasma.nxmenu)
 
 include_directories(plugin/plasmaquick)
 
-set(nomadmenuplugin_SRCS
+set(nxmenuplugin_SRCS
     plugin/abstractentry.cpp
     plugin/abstractmodel.cpp
     plugin/actionlist.cpp
@@ -111,16 +111,16 @@ set(nomadmenuplugin_SRCS
 )
 
 if(PackageKitQt5_FOUND)
-    list(APPEND nomadmenuplugin_SRCS plugin/findpackagenamejob.cpp)
+    list(APPEND nxmenuplugin_SRCS plugin/findpackagenamejob.cpp)
 endif()
 
-qt5_add_dbus_interface(nomadmenuplugin_SRCS ${KSMSERVER_DBUS_INTERFACE} ksmserver_interface)
+qt5_add_dbus_interface(nxmenuplugin_SRCS ${KSMSERVER_DBUS_INTERFACE} ksmserver_interface)
 
-install(FILES plugin/qmldir DESTINATION ${QML_INSTALL_DIR}/org/kde/plasma/private/nomadmenu)
+install(FILES plugin/qmldir DESTINATION ${QML_INSTALL_DIR}/org/kde/plasma/private/nxmenu)
 
-add_library(nomadmenuplugin SHARED ${nomadmenuplugin_SRCS})
+add_library(nxmenuplugin SHARED ${nxmenuplugin_SRCS})
 
-target_link_libraries(nomadmenuplugin
+target_link_libraries(nxmenuplugin
                       Qt5::Core
                       Qt5::DBus
                       Qt5::Qml
@@ -143,10 +143,10 @@ target_link_libraries(nomadmenuplugin
                       PW::KWorkspace)
 
 if(PackageKitQt5_FOUND)
-    target_link_libraries(nomadmenuplugin PK::packagekitqt5)
+    target_link_libraries(nxmenuplugin PK::packagekitqt5)
 endif()
 
-install(TARGETS nomadmenuplugin DESTINATION ${QML_INSTALL_DIR}/org/kde/plasma/private/nomadmenu)
+install(TARGETS nxmenuplugin DESTINATION ${QML_INSTALL_DIR}/org/kde/plasma/private/nxmenu)
 
 
 file(GLOB_RECURSE QML_SRCS package/*)

@@ -1,2 +1,2 @@
-module org.kde.plasma.private.nomadmenu
-plugin nomadmenuplugin
+module org.kde.plasma.private.nxmenu
+plugin nxmenuplugin

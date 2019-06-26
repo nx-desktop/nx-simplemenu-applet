@@ -9,14 +9,14 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.plasma.plasmoid 2.0
 
-import org.kde.plasma.private.nomadmenu 0.1 as NomadMenu
+import org.kde.plasma.private.nxmenu 0.1 as NXMenu
 
 import '../code/tools.js' as Tools
 
 Item {
     property alias cfg_groupsJson: rawGroupJsonEdit.text;
 
-    NomadMenu.RootModel {
+    NXMenu.RootModel {
         id: rootModel
         groupsModel.json: cfg_groupsJson
 
