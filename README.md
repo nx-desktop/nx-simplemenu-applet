@@ -2,8 +2,6 @@
 
 This is the repository for the paged start menu for NX Destkop supports scrolling and folder creation. It's based on the maui-simple-menu project.
 
-![](https://i.imgur.com/JiHUCwx.png)
-
 # Requirements
 - Qt 5.8+.
 - QtQuick.
