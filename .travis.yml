@@ -1,5 +1,8 @@
 dist: focal
 
+arch:
+  - arm64
+
 before_install:
   - gem install package_cloud
 
@@ -9,7 +12,8 @@ script:
 
 branches:
   only:
-    - master
+    - arm64
 
 notifications:
   email: false
+
